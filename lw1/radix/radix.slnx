@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="radix.vcxproj" Id="a0be8fbc-e35a-4588-8625-a48de40287f2" />
+</Solution>

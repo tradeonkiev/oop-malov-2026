@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="revert.vcxproj" Id="5c0c4d50-3f41-40c7-bf4b-8127e0d7f876" />
+</Solution>
