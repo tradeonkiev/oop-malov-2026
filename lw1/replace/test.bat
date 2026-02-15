@@ -1,6 +1,8 @@
 @echo off
 setlocal enabledelayedexpansion
 
+::TODO: переделать в функции
+
 set PROGRAM="%~dp0replace.exe"
 
 if not exist %PROGRAM% (
@@ -49,7 +51,7 @@ if "!RESULT!"=="!EXPECTED!" (
 ) else (
     echo Test 3 FAILED: Replace with empty string
     echo    Expected:   !EXPECTED!
-    echo    Got:    !RESULT!
+    echo    Got:        !RESULT!
 )
 
 echo Empty search string (no changes)
@@ -102,11 +104,11 @@ echo 1231234> "%~dp0test_temp\in.txt"
 set /p RESULT=<"%~dp0test_temp\out.txt"
 set "EXPECTED=123XY"
 if "!RESULT!"=="!EXPECTED!" (
-    echo Test 7 PASSED: Partial match at boundary (1231234)
+    echo Test 7 PASSED: Partial match at boundary 1231234
 ) else (
     echo Test 7 FAILED: Partial match at boundary (1231234)
-    echo    Expected:   !EXPECTED!
-    echo    Got:        !RESULT!
+    echo    Expected:   '!EXPECTED!'
+    echo    Got:        '!RESULT!'
 )
 echo =============================
 

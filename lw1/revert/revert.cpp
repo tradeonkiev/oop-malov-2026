@@ -1,4 +1,11 @@
-﻿#include "pch.h"
+﻿// #include "pch.h"
+
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <iomanip>
+#include <vector>
 
 const int SIZE = 3;
 
@@ -6,9 +13,9 @@ void PrintUsage()
 {
 	std::cout << "Usage: revert.exe [-h] [<matrix-file>]" << std::endl;
 	std::cout << "Options:" << std::endl;
-	std::cout << "  -h             Show this help message" << std::endl;
-	std::cout << "  <matrix-file>  File matrix (tab-separated)" << std::endl;
-	std::cout << "  (no args)      Read matrix from input" << std::endl;
+	std::cout << "  -h            Show this help message" << std::endl;
+	std::cout << "  <matrix-file> File matrix (tab-separated)" << std::endl;
+	std::cout << "  (no args)     Read matrix from input" << std::endl;
 }
 
 bool ReadMatrix(std::istream& input, double matrix[SIZE][SIZE])
@@ -74,21 +81,46 @@ double Determinant(const double matrix[SIZE][SIZE])
 		+ matrix[0][2] * (matrix[1][0] * matrix[2][1] - matrix[1][1] * matrix[2][0]);
 }
 
+
+double Minor(const double matrix[SIZE][SIZE], int row, int col)
+{
+	double minorMatrix[SIZE - 1][SIZE - 1];
+
+	int x = 0, y = 0;
+
+	for (int i = 0; i < SIZE; i++)
+	{
+		for (int j = 0; j < SIZE; j++)
+		{
+			if (i != row && j != col)
+			{
+				minorMatrix[x][y] = matrix[i][j];
+				if (++y >= SIZE - 1)
+				{
+					++x;
+					y = 0;
+				}
+			}
+		}
+	}
+
+	return minorMatrix[0][0] * minorMatrix[1][1] - minorMatrix[0][1] * minorMatrix[1][0];
+}
+
 void InvertMatrix(const double matrix[SIZE][SIZE], double result[SIZE][SIZE])
 {
 	double det = Determinant(matrix);
 
-	result[0][0] = (matrix[1][1] * matrix[2][2] - matrix[1][2] * matrix[2][1]) / det;
-	result[0][1] = (matrix[0][2] * matrix[2][1] - matrix[0][1] * matrix[2][2]) / det;
-	result[0][2] = (matrix[0][1] * matrix[1][2] - matrix[0][2] * matrix[1][1]) / det;
-
-	result[1][0] = (matrix[1][2] * matrix[2][0] - matrix[1][0] * matrix[2][2]) / det;
-	result[1][1] = (matrix[0][0] * matrix[2][2] - matrix[0][2] * matrix[2][0]) / det;
-	result[1][2] = (matrix[0][2] * matrix[1][0] - matrix[0][0] * matrix[1][2]) / det;
-
-	result[2][0] = (matrix[1][0] * matrix[2][1] - matrix[1][1] * matrix[2][0]) / det;
-	result[2][1] = (matrix[0][1] * matrix[2][0] - matrix[0][0] * matrix[2][1]) / det;
-	result[2][2] = (matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0]) / det;
+	int power = 1;
+	for (int i = 0; i < SIZE; i++)
+	{
+		for (int j = 0; j < SIZE; j++)
+		{
+			result[i][j] = power * Minor(matrix, j, i) / det;
+      if (std::abs(result[i][j]) < 1e-9) result[i][j] = 0.0;
+			power *= -1;
+		}
+	}
 }
 
 void PrintMatrix(const double matrix[SIZE][SIZE])
@@ -116,7 +148,7 @@ int main(int argc, char* argv[])
 	if (argc > 2)
 	{
 		std::cout << "Invalid arguments" << std::endl;
-		return 1;
+		return 0;
 	}
 
 	if (argc == 2)
@@ -131,30 +163,29 @@ int main(int argc, char* argv[])
 		std::ifstream file(arg);
 		if (!file.is_open())
 		{
-			std::cout << "Cant open file '" << arg << "'" << std::endl;
+			std::cout << "Cant open file \"" << arg << "\"" << std::endl;
 			return 1;
 		}
 
 		if (!ReadMatrix(file, matrix))
 		{
-			return 1;
+			return 0;
 		}
 	}
 	else
 	{
 		if (!ReadMatrix(std::cin, matrix))
 		{
-			return 1;
+			return 0;
 		}
 	}
 
 	double det = Determinant(matrix);
-	std::cout << det << std::endl;
-	
+
 	if (!det)
 	{
 		std::cout << "Non-invertible" << std::endl;
-		return 1;
+		return 0;
 	}
 
 	InvertMatrix(matrix, inverse);

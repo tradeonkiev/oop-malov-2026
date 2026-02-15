@@ -8,14 +8,13 @@ std::string ReplaceString(
 	if (searchString.empty()) 
 		return subject;
 
-	int pos = 0;
+	size_t pos = 0;
 	std::string result;
 
 	while (pos < subject.length())
 	{
 		int foundPos = subject.find(searchString, pos);
-
-		if (foundPos == -1)
+		if (foundPos == std::string::npos)
 		{
 			result.append(subject, pos, subject.length() - pos);
 			break;
@@ -66,24 +65,24 @@ int main(int argc, char* argv[])
 		outputFile.flush();
 
 		return 0;
-	}
-	else if (std::string(argv[1]) == "-h")
+	} 
+	else if (argc == 1)
+  {
+    std::string searchString, replacementString;
+
+    if (!std::getline(std::cin, searchString) || !std::getline(std::cin, replacementString)) {
+      std::cout << "ERROR" << std::endl;
+      return 0;
+    }
+    CopyStreamWithReplacement(std::cin, std::cout, searchString, replacementString);
+    return 0;
+  } 
+  else if (argc == 2 && std::string(argv[1]) == "-h")
 	{
 		std::cout << "Usage:\n"
 			<< "  File mode:  replace.exe <input file> <output file> <search string> <replace string>\n"
 			<< "  Stdin mode: run without arguments, enter search string, replacement string, then text"
 			<< std::endl;
-		return 0;
-	}
-	else if (argc == 1)
-	{
-		std::string searchString;
-		std::string replacementString;
-
-		std::getline(std::cin, searchString);
-		std::getline(std::cin, replacementString);
-
-		CopyStreamWithReplacement(std::cin, std::cout, searchString, replacementString);
 		return 0;
 	}
 	else

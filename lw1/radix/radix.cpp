@@ -29,23 +29,23 @@ int StringToInt(const std::string& str, int radix, bool& wasError)
 		return 0;
 	}
 
-	int pos = 0;
+	int startPos = 0;
 	bool negative = false;
 
 	if (str[0] == '-')
 	{
 		negative = true;
-		pos = 1;
+		startPos = 1;
 	}
 	else if (str[0] == '+')
 	{
-		pos = 1;
+		startPos = 1;
 	}
 
 
 	int result = 0;
 
-	for (int i = pos; i < str.size(); i++)
+	for (int i = startPos; i < str.size(); i++)
 	{
 		int digit = CharToDigit(str[i]);
 
@@ -110,7 +110,8 @@ std::string IntToString(int n, int radix, bool& wasError)
 	{
 		result += '-';
 	}
-
+  
+  // TODO: разобраться что возращаетис бегин енд
 	std::reverse(result.begin(), result.end());
 	return result;
 }
@@ -125,15 +126,17 @@ int main(int argc, char* argv[])
 
 
 	bool wasError = false;
-
+  // TODO: ловить ошибку
 	int sourceRadix = StringToInt(static_cast<std::string>(argv[1]), 10, wasError);
-	if (sourceRadix < 2 || sourceRadix > 36)
+
+	if (sourceRadix < 2 || sourceRadix > 36 || wasError)
 	{
 		std::cout << "Invalid source notation" << std::endl;
 		return 1;
 	}
 
 	int destRadix = StringToInt(static_cast<std::string>(argv[2]), 10, wasError);
+  // TODO: повторы
 	if (destRadix < 2 || destRadix > 36)
 	{
 		std::cout << "Invalid destination notation" << std::endl;
@@ -142,7 +145,7 @@ int main(int argc, char* argv[])
 	std::string value = argv[3];
 
 	int number = StringToInt(value, sourceRadix, wasError);
-
+  // TODO: конкретизировать 
 	if (wasError)
 	{
 		std::cout << "Invalid value for the given source notation" << std::endl;

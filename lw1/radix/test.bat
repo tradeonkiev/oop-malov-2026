@@ -2,7 +2,7 @@
 setlocal enabledelayedexpansion
 
 set PROGRAM="%~dp0radix.exe"
-
+:: вынести в функцию
 if not exist %PROGRAM% (
     echo ERROR: radix.exe not found. Compile the project first.
     exit /b 1
@@ -116,13 +116,37 @@ if "!RESULT!"=="!EXPECTED!" (
 )
 echo =============================
 
+echo Max int OVERFLOW (2147483648)
+for /f %%A in ('%PROGRAM% 10 16 2147483648') do set "RESULT=%%A"
+set "EXPECTED=Invalid value for the given source notation"
+if "!RESULT!"=="!EXPECTED!" (
+    echo Test 10.1 PASSED: Max int OVERFLOW
+) else (
+    echo Test 10.1 FAILED: Max int OVERFLOW
+    echo    Expected:   !EXPECTED!
+    echo    Got:        !RESULT!
+)
+echo =============================
+
 echo Max int (2147483647 decimal to hex)
 for /f %%A in ('%PROGRAM% 10 16 2147483647') do set "RESULT=%%A"
 set "EXPECTED=7FFFFFFF"
 if "!RESULT!"=="!EXPECTED!" (
-    echo Test 10 PASSED: Max int
+    echo Test 10.2 PASSED: Max int
 ) else (
-    echo Test 10 FAILED: Max int
+    echo Test 10.2 FAILED: Max int
+    echo    Expected:   !EXPECTED!
+    echo    Got:        !RESULT!
+)
+echo =============================
+
+echo Min int OVERFLOW (-2147483649)
+for /f %%A in ('%PROGRAM% 10 16 -2147483649') do set "RESULT=%%A"
+set "EXPECTED=Invalid value for the given source notation"
+if "!RESULT!"=="!EXPECTED!" (
+    echo Test 10.1 PASSED: Max int OVERFLOW
+) else (
+    echo Test 10.1 FAILED: Max int OVERFLOW
     echo    Expected:   !EXPECTED!
     echo    Got:        !RESULT!
 )
