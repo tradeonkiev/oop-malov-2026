@@ -6,7 +6,7 @@
 void CopyStreamWithReplacement(std::istream& input, std::ostream& output, const std::string& searchString, const std::string& replacementString);
 std::string ReplaceString(const std::string& subject, const std::string& searchString, const std::string& replacementString);
 void DisplayHelpNotation(std::ostream& output);
-int ProcessFileMode(char* argv[]);
+int ProcessFileMode(char* arguments[]);
 int ProcessStdinMode();
 
 int main(int argc, char* argv[])
@@ -32,23 +32,23 @@ int main(int argc, char* argv[])
 	}
 }
 
-int ProcessFileMode(char* argv[])
+int ProcessFileMode(char* arguments[])
 {
-	std::ifstream inputFile(argv[1]);
+	std::ifstream inputFile(arguments[1]);
 	if (!inputFile.is_open())
 	{
 		std::cerr << "ERROR" << std::endl;
 		return 1;
 	}
 
-	std::ofstream outputFile(argv[2]);
+	std::ofstream outputFile(arguments[2]);
 	if (!outputFile.is_open())
 	{
 		std::cerr << "ERROR" << std::endl;
 		return 1;
 	}
 
-	CopyStreamWithReplacement(inputFile, outputFile, argv[3], argv[4]);
+	CopyStreamWithReplacement(inputFile, outputFile, arguments[3], arguments[4]);
 	outputFile.flush();
 
 	return 0;

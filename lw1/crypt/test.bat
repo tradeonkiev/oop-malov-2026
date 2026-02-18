@@ -46,7 +46,7 @@ set "DESC=%~2"
 set "KEY=%~3"
 "!PROGRAM!" crypt "!INPUT!" "!ENC!" %KEY%
 "!PROGRAM!" decrypt "!ENC!" "!DEC!" %KEY%
-fc /b "!INPUT!" "!DEC!" > nul 2>&1
+fc /b "!INPUT!" "!DEC!" 
 if errorlevel 1 (
     echo Test !NUM! FAILED: !DESC!
     set /a FAILED+=1
@@ -55,7 +55,7 @@ if errorlevel 1 (
     set /a PASSED+=1
 )
 echo =============================
-goto :eof
+exit /b
 
 :testFilesDiffer
 set "NUM=%~1"
@@ -71,7 +71,7 @@ if errorlevel 1 (
     set /a FAILED+=1
 )
 echo =============================
-goto :eof
+exit /b
 
 :testEmptyFile
 set "NUM=%~1"
@@ -89,7 +89,7 @@ if errorlevel 1 (
     set /a PASSED+=1
 )
 echo =============================
-goto :eof
+exit /b
 
 :testWrongKey
 set "NUM=%~1"
@@ -107,7 +107,7 @@ if errorlevel 1 (
     set /a FAILED+=1
 )
 echo =============================
-goto :eof
+exit /b
 
 :testError
 set "NUM=%~1"
@@ -121,7 +121,7 @@ if not errorlevel 1 (
     set /a FAILED+=1
     del "!OUTPUT_FILE!" 2>nul
     echo =============================
-    goto :eof
+    exit /b
 )
 findstr /c:"!EXPECTED!" "!OUTPUT_FILE!" > nul
 if errorlevel 1 (
@@ -136,4 +136,4 @@ if errorlevel 1 (
 )
 del "!OUTPUT_FILE!" 2>nul
 echo =============================
-goto :eof
+exit /b
