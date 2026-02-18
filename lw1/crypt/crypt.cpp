@@ -3,47 +3,10 @@
 #include <iostream>
 #include <string>
 
-// Табла шифра
-// 0 1 2 3 4 5 6 7
-// 2 3 4 6 7 0 1 5
-
-uint8_t MixBits(uint8_t byte)
-{
-	uint8_t result = 0;
-	result |= ((byte >> 7) & 1) << 5; 
-	result |= ((byte >> 6) & 1) << 1; 
-	result |= ((byte >> 5) & 1) << 0; 
-	result |= ((byte >> 4) & 1) << 7; 
-	result |= ((byte >> 3) & 1) << 6; 
-	result |= ((byte >> 2) & 1) << 4;
-	result |= ((byte >> 1) & 1) << 3;
-	result |= ((byte >> 0) & 1) << 2;
-	return result;
-}
-
-uint8_t UnmixBits(uint8_t byte)
-{
-	uint8_t result = 0;
-	result |= ((byte >> 5) & 1) << 7;
-	result |= ((byte >> 1) & 1) << 6;
-	result |= ((byte >> 0) & 1) << 5;
-	result |= ((byte >> 7) & 1) << 4;
-	result |= ((byte >> 6) & 1) << 3;
-	result |= ((byte >> 4) & 1) << 2;
-	result |= ((byte >> 3) & 1) << 1;
-	result |= ((byte >> 2) & 1) << 0;
-	return result;
-}
-
-uint8_t EncryptByte(uint8_t byte, uint8_t key)
-{
-	return MixBits(byte ^ key);
-}
-
-uint8_t DecryptByte(uint8_t byte, uint8_t key)
-{
-	return UnmixBits(byte) ^ key;
-}
+uint8_t MixBits(uint8_t byte);
+uint8_t UnmixBits(uint8_t byte);
+uint8_t EncryptByte(uint8_t byte, uint8_t key);
+uint8_t DecryptByte(uint8_t byte, uint8_t key);
 
 int main(int argc, char* argv[])
 {
@@ -90,7 +53,7 @@ int main(int argc, char* argv[])
 		std::cout << "cant open output file \"" << argv[3] << "\"" << std::endl;
 		return 1;
 	}
-	
+
 	input >> std::noskipws;
 	char byte;
 	while (input >> byte)
@@ -108,7 +71,7 @@ int main(int argc, char* argv[])
 	}
 
 	if (!input.eof())
-	{ 
+	{
 		std::cout << "failed to read input file" << std::endl;
 		return 1;
 	}
@@ -120,4 +83,46 @@ int main(int argc, char* argv[])
 	}
 
 	return 0;
+}
+
+// Табла шифра
+// 0 1 2 3 4 5 6 7
+// 2 3 4 6 7 0 1 5
+
+uint8_t EncryptByte(uint8_t byte, uint8_t key)
+{
+	return MixBits(byte ^ key);
+}
+
+uint8_t MixBits(uint8_t byte)
+{
+	uint8_t result = 0;
+	result |= ((byte >> 7) & 1) << 5;
+	result |= ((byte >> 6) & 1) << 1;
+	result |= ((byte >> 5) & 1) << 0;
+	result |= ((byte >> 4) & 1) << 7;
+	result |= ((byte >> 3) & 1) << 6;
+	result |= ((byte >> 2) & 1) << 4;
+	result |= ((byte >> 1) & 1) << 3;
+	result |= ((byte >> 0) & 1) << 2;
+	return result;
+}
+
+uint8_t DecryptByte(uint8_t byte, uint8_t key)
+{
+	return UnmixBits(byte) ^ key;
+}
+
+uint8_t UnmixBits(uint8_t byte)
+{
+	uint8_t result = 0;
+	result |= ((byte >> 5) & 1) << 7;
+	result |= ((byte >> 1) & 1) << 6;
+	result |= ((byte >> 0) & 1) << 5;
+	result |= ((byte >> 7) & 1) << 4;
+	result |= ((byte >> 6) & 1) << 3;
+	result |= ((byte >> 4) & 1) << 2;
+	result |= ((byte >> 3) & 1) << 1;
+	result |= ((byte >> 2) & 1) << 0;
+	return result;
 }

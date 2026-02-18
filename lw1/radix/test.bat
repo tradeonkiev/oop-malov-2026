@@ -2,211 +2,90 @@
 setlocal enabledelayedexpansion
 
 set PROGRAM="%~dp0radix.exe"
-:: вынести в функцию
+set PASSED=0
+set FAILED=0
+
 if not exist %PROGRAM% (
     echo ERROR: radix.exe not found. Compile the project first.
     exit /b 1
 )
 
-echo Decimal to binary 255 - 11111111
-for /f %%A in ('%PROGRAM% 10 2 255') do set "RESULT=%%A"
-set "EXPECTED=11111111"
+call :testValue  "1"    "Decimal to binary 255"             10 2  255           "11111111"
+call :testValue  "2"    "Binary to decimal 11111111"        2  10 11111111      "255"
+call :testValue  "3"    "Decimal to hex 255"                10 16 255           "FF"
+call :testValue  "4"    "Hex to decimal FF"                 16 10 FF            "255"
+call :testValue  "5"    "Lowercase hex input ff"            16 10 ff            "255"
+call :testValue  "6"    "Zero"                              10 2  0             "0"
+call :testValue  "7"    "Negative number -255 to hex"       10 16 -255          "-FF"
+call :testValue  "8"    "Octal to decimal 77"               8  10 77            "63"
+call :testValue  "9"    "Base 36 Z to decimal"              36 10 Z             "35"
+call :testValue  "10"   "Max int 2147483647 to hex"         10 16 2147483647    "7FFFFFFF"
+call :testValue  "11"   "Min int -2147483648 to hex"        10 16 -2147483648   "-80000000"
+call :testValue  "12"   "Same base conversion hex"          16 16 1A            "1A"
+
+call :testError  "13"   "Overflow 2147483648"               10 16 2147483648    "Overflow: number is too large to convert"
+call :testError  "14"   "Overflow -2147483649"              10 16 -2147483649   "Overflow: number is too large to convert"
+call :testError  "15"   "Invalid char G in base 16"         16 10 G             "Digit G is out of range for base 16"
+call :testError  "16"   "Invalid source radix 1"            1  10 5             "Invalid source notation: must be a number from 2 to 36"
+call :testError  "17"   "Invalid destination radix 37"      10 37 5             "Invalid destination notation: must be a number from 2 to 36"
+
+call :testErrorCode "18" "Wrong argument count" "%PROGRAM% 10 16"
+
+echo.
+echo Results: !PASSED! passed, !FAILED! failed
+exit /b !FAILED!
+
+:testValue
+set "NUM=%~1"
+set "DESC=%~2"
+set "SRC=%~3"
+set "DST=%~4"
+set "INPUT=%~5"
+set "EXPECTED=%~6"
+for /f "delims=" %%A in ('%PROGRAM% %SRC% %DST% %INPUT%') do set "RESULT=%%A"
 if "!RESULT!"=="!EXPECTED!" (
-    echo Test 1 PASSED: Decimal to binary
+    echo Test %NUM% PASSED: %DESC%
+    set /a PASSED+=1
 ) else (
-    echo Test 1 FAILED: Decimal to binary
-    echo    Expected:   !EXPECTED!
-    echo    Got:        !RESULT!
+    echo Test %NUM% FAILED: %DESC%
+    echo    Expected: !EXPECTED!
+    echo    Got:      !RESULT!
+    set /a FAILED+=1
 )
 echo =============================
+exit /b
 
-echo Binary to decimal 11111111 - 255
-for /f %%A in ('%PROGRAM% 2 10 11111111') do set "RESULT=%%A"
-set "EXPECTED=255"
+:testError
+set "NUM=%~1"
+set "DESC=%~2"
+set "SRC=%~3"
+set "DST=%~4"
+set "INPUT=%~5"
+set "EXPECTED=%~6"
+for /f "delims=" %%A in ('%PROGRAM% %SRC% %DST% %INPUT%') do set "RESULT=%%A"
 if "!RESULT!"=="!EXPECTED!" (
-    echo Test 2 PASSED: Binary to decimal
+    echo Test %NUM% PASSED: %DESC%
+    set /a PASSED+=1
 ) else (
-    echo Test 2 FAILED: Binary to decimal
-    echo    Expected:   !EXPECTED!
-    echo    Got:        !RESULT!
+    echo Test %NUM% FAILED: %DESC%
+    echo    Expected: !EXPECTED!
+    echo    Got:      !RESULT!
+    set /a FAILED+=1
 )
 echo =============================
+exit /b
 
-echo Decimal to hex 255 - FF
-for /f %%A in ('%PROGRAM% 10 16 255') do set "RESULT=%%A"
-set "EXPECTED=FF"
-if "!RESULT!"=="!EXPECTED!" (
-    echo Test 3 PASSED: Decimal to hex
-) else (
-    echo Test 3 FAILED: Decimal to hex
-    echo    Expected:   !EXPECTED!
-    echo    Got:        !RESULT!
-)
-echo =============================
-
-echo Hex to decimal FF - 255
-for /f %%A in ('%PROGRAM% 16 10 FF') do set "RESULT=%%A"
-set "EXPECTED=255"
-if "!RESULT!"=="!EXPECTED!" (
-    echo Test 4 PASSED: Hex to decimal
-) else (
-    echo Test 4 FAILED: Hex to decimal
-    echo    Expected:   !EXPECTED!
-    echo    Got:        !RESULT!
-)
-echo =============================
-
-echo Lowercase hex input ff - 255
-for /f %%A in ('%PROGRAM% 16 10 ff') do set "RESULT=%%A"
-set "EXPECTED=255"
-if "!RESULT!"=="!EXPECTED!" (
-    echo Test 5 PASSED: Lowercase hex input
-) else (
-    echo Test 5 FAILED: Lowercase hex input
-    echo    Expected:   !EXPECTED!
-    echo    Got:        !RESULT!
-)
-echo =============================
-
-echo Zero
-for /f %%A in ('%PROGRAM% 10 2 0') do set "RESULT=%%A"
-set "EXPECTED=0"
-if "!RESULT!"=="!EXPECTED!" (
-    echo Test 6 PASSED: Zero
-) else (
-    echo Test 6 FAILED: Zero
-    echo    Expected:   !EXPECTED!
-    echo    Got:        !RESULT!
-)
-echo =============================
-
-echo Negative number -255 decimal to hex
-for /f %%A in ('%PROGRAM% 10 16 -255') do set "RESULT=%%A"
-set "EXPECTED=-FF"
-if "!RESULT!"=="!EXPECTED!" (
-    echo Test 7 PASSED: Negative number
-) else (
-    echo Test 7 FAILED: Negative number
-    echo    Expected:   !EXPECTED!
-    echo    Got:        !RESULT!
-)
-echo =============================
-
-echo Octal to decimal 77 - 63
-for /f %%A in ('%PROGRAM% 8 10 77') do set "RESULT=%%A"
-set "EXPECTED=63"
-if "!RESULT!"=="!EXPECTED!" (
-    echo Test 8 PASSED: Octal to decimal
-) else (
-    echo Test 8 FAILED: Octal to decimal
-    echo    Expected:   !EXPECTED!
-    echo    Got:        !RESULT!
-)
-echo =============================
-
-echo Base 36 Z - 35
-for /f %%A in ('%PROGRAM% 36 10 Z') do set "RESULT=%%A"
-set "EXPECTED=35"
-if "!RESULT!"=="!EXPECTED!" (
-    echo Test 9 PASSED: Base 36
-) else (
-    echo Test 9 FAILED: Base 36
-    echo    Expected:   !EXPECTED!
-    echo    Got:        !RESULT!
-)
-echo =============================
-
-echo Max int OVERFLOW (2147483648)
-for /f %%A in ('%PROGRAM% 10 16 2147483648') do set "RESULT=%%A"
-set "EXPECTED=Invalid value for the given source notation"
-if "!RESULT!"=="!EXPECTED!" (
-    echo Test 10.1 PASSED: Max int OVERFLOW
-) else (
-    echo Test 10.1 FAILED: Max int OVERFLOW
-    echo    Expected:   !EXPECTED!
-    echo    Got:        !RESULT!
-)
-echo =============================
-
-echo Max int (2147483647 decimal to hex)
-for /f %%A in ('%PROGRAM% 10 16 2147483647') do set "RESULT=%%A"
-set "EXPECTED=7FFFFFFF"
-if "!RESULT!"=="!EXPECTED!" (
-    echo Test 10.2 PASSED: Max int
-) else (
-    echo Test 10.2 FAILED: Max int
-    echo    Expected:   !EXPECTED!
-    echo    Got:        !RESULT!
-)
-echo =============================
-
-echo Min int OVERFLOW (-2147483649)
-for /f %%A in ('%PROGRAM% 10 16 -2147483649') do set "RESULT=%%A"
-set "EXPECTED=Invalid value for the given source notation"
-if "!RESULT!"=="!EXPECTED!" (
-    echo Test 10.1 PASSED: Max int OVERFLOW
-) else (
-    echo Test 10.1 FAILED: Max int OVERFLOW
-    echo    Expected:   !EXPECTED!
-    echo    Got:        !RESULT!
-)
-echo =============================
-
-echo Min int
-for /f %%A in ('%PROGRAM% 10 16 -2147483648') do set "RESULT=%%A"
-set "EXPECTED=-80000000"
-if "!RESULT!"=="!EXPECTED!" (
-    echo Test 11 PASSED: Min int
-) else (
-    echo Test 11 FAILED: Min int
-    echo    Expected:   !EXPECTED!
-    echo    Got:        !RESULT!
-)
-echo =============================
-
-echo Invalid source radix (1)
-%PROGRAM% 1 10 5
+:testErrorCode
+set "NUM=%~1"
+set "DESC=%~2"
+set "CMD=%~3"
+%CMD% >nul 2>&1
 if !ERRORLEVEL! NEQ 0 (
-    echo Test 12 PASSED: Invalid source radix
+    echo Test %NUM% PASSED: %DESC%
+    set /a PASSED+=1
 ) else (
-    echo Test 12 FAILED: Invalid source radix should return error
+    echo Test %NUM% FAILED: %DESC% - expected non-zero exit code
+    set /a FAILED+=1
 )
 echo =============================
-
-echo Invalid destination radix (37)
-%PROGRAM% 10 37 5
-if !ERRORLEVEL! NEQ 0 (
-    echo Test 13 PASSED: Invalid destination radix
-) else (
-    echo Test 13 FAILED: Invalid destination radix should return error
-)
-echo =============================
-
-echo Invalid value for source notation (G in base 16)
-%PROGRAM% 16 10 G
-if !ERRORLEVEL! NEQ 0 (
-    echo Test 14 PASSED: Invalid value for source notation
-) else (
-    echo Test 14 FAILED: Invalid value should return error
-)
-echo =============================
-
-echo Wrong argument count
-%PROGRAM% 10 16 >nul 2>&1
-if !ERRORLEVEL! NEQ 0 (
-    echo Test 15 PASSED: Wrong argument count
-) else (
-    echo Test 15 FAILED: Wrong argument count should return error
-)
-echo =============================
-
-echo Same base conversion 16 - 16
-for /f %%A in ('%PROGRAM% 16 16 1A') do set "RESULT=%%A"
-set "EXPECTED=1A"
-if "!RESULT!"=="!EXPECTED!" (
-    echo Test 16 PASSED: Same base conversion
-) else (
-    echo Test 16 FAILED: Same base conversion
-    echo    Expected:   !EXPECTED!
-    echo    Got:        !RESULT!
-)
+exit /b
