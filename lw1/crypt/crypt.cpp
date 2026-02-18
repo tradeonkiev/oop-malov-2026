@@ -40,14 +40,14 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	std::ifstream input(argv[2]);
+	std::ifstream input(argv[2], std::ios::binary);
 	if (!input.is_open())
 	{
 		std::cout << "cant open input file \"" << argv[2] << "\"" << std::endl;
 		return 1;
 	}
 
-	std::ofstream output(argv[3]);
+	std::ofstream output(argv[3], std::ios::binary);
 	if (!output.is_open())
 	{
 		std::cout << "cant open output file \"" << argv[3] << "\"" << std::endl;

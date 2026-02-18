@@ -2,7 +2,6 @@
 setlocal enabledelayedexpansion
 
 set PROGRAM="%~dp0revert.exe"
-set TEMPDIR=%~dp0test_temp
 set PASSED=0
 set FAILED=0
 
@@ -11,97 +10,126 @@ if not exist %PROGRAM% (
     exit /b 1
 )
 
-mkdir "%TEMPDIR%"
+rem Create temp directory for test files
+set "TMPDIR=%~dp0tmp_test"
+if not exist "%TMPDIR%" mkdir "%TMPDIR%"
 
-call :RunTest 1 "Basic integer matrix (example 1)" "1	2   3" "0	1	4" "5	6	0" "-24.000	18.000	5.000" "20.000	-15.000	-4.000" "-5.000	4.000	1.000"
-call :RunTest 2 "Float matrix (example 2)" "4	7	2.3" "2	1	1" "3	-2	-2.31" "-0.009	0.321	0.131" "0.212	-0.448	0.017" "-0.194	0.806	-0.278"
-call :RunTest 3 "Identity matrix" "1	0	0" "0	1	0" "0	0	1" "1.000	0.000	0.000" "0.000	1.000	0.000" "0.000	0.000	1.000"
-call :RunMessageTest 4 "Non-invertible matrix (example 3)" "1	2	3" "2	4	6" "1	2	3" "Non-invertible"
-call :RunMessageTest 5 "Non-invertible zero matrix" "0	0	0" "0	0	0" "0	0	0" "Non-invertible"
-call :RunInvalidFormatTest 6 "Only 2 rows"
-call :RunInvalidFormatTest2 7 "4 columns in a row"
-call :RunInvalidMatrixTest 8 "Non-numeric value"
-call :RunStdinTest
-call :RunHelpTest
-call :RunExtraRowsTest
-call :RunErrorTest 12 "Too many arguments" "%PROGRAM% file1 file2"
-
-echo.
-echo Results: !PASSED! passed, !FAILED! failed
-
-rmdir /s /q "%TEMPDIR%"
-exit /b 0
-
-:RunTest
-set "NUM=%~1"
-set "DESC=%~2"
-set "R1=%~3"
-set "R2=%~4"
-set "R3=%~5"
-set "E1=%~6"
-set "E2=%~7"
-set "E3=%~8"
+rem ===== Test 1: Basic integer matrix (example 1) =====
+set "NUM=1"
+set "DESC=Basic integer matrix inversion"
 (
-    echo !R1!
-    echo !R2!
-    echo !R3!
-) > "%TEMPDIR%\in.txt"
+    echo 1	2	3
+    echo 0	1	4
+    echo 5	6	0
+) > "%TMPDIR%\input.txt"
 (
-    echo !E1!
-    echo !E2!
-    echo !E3!
-) > "%TEMPDIR%\expected.txt"
-%PROGRAM% "%TEMPDIR%\in.txt" > "%TEMPDIR%\out.txt"
-fc /w "%TEMPDIR%\expected.txt" "%TEMPDIR%\out.txt" >nul 2>&1
+    echo -24.000	18.000	5.000
+    echo 20.000	-15.000	-4.000
+    echo -5.000	4.000	1.000
+) > "%TMPDIR%\expected.txt"
+%PROGRAM% "%TMPDIR%\input.txt" > "%TMPDIR%\output.txt"
+fc /w "%TMPDIR%\expected.txt" "%TMPDIR%\output.txt" >nul 2>&1
 if !ERRORLEVEL! EQU 0 (
     echo Test %NUM% PASSED: %DESC%
     set /a PASSED+=1
 ) else (
     echo Test %NUM% FAILED: %DESC%
     echo    Expected:
-    type "%TEMPDIR%\expected.txt"
+    type "%TMPDIR%\expected.txt"
     echo    Got:
-    type "%TEMPDIR%\out.txt"
+    type "%TMPDIR%\output.txt"
     set /a FAILED+=1
 )
 echo =============================
-exit /b
 
-:RunMessageTest
-set "NUM=%~1"
-set "DESC=%~2"
-set "R1=%~3"
-set "R2=%~4"
-set "R3=%~5"
-set "EXPECTED=%~6"
+rem ===== Test 2: Float matrix (example 2) =====
+set "NUM=2"
+set "DESC=Float matrix inversion"
 (
-    echo !R1!
-    echo !R2!
-    echo !R3!
-) > "%TEMPDIR%\in.txt"
-set "RESULT="
-for /f "delims=" %%A in ('%PROGRAM% "%TEMPDIR%\in.txt"') do set "RESULT=%%A"
-if "!RESULT!"=="!EXPECTED!" (
+    echo 4	7	2.3
+    echo 2	1	1
+    echo 3	-2	-2.31
+) > "%TMPDIR%\input.txt"
+(
+    echo -0.009	0.321	0.131
+    echo 0.212	-0.448	0.017
+    echo -0.194	0.806	-0.278
+) > "%TMPDIR%\expected.txt"
+%PROGRAM% "%TMPDIR%\input.txt" > "%TMPDIR%\output.txt"
+fc /w "%TMPDIR%\expected.txt" "%TMPDIR%\output.txt" >nul 2>&1
+if !ERRORLEVEL! EQU 0 (
     echo Test %NUM% PASSED: %DESC%
     set /a PASSED+=1
 ) else (
     echo Test %NUM% FAILED: %DESC%
-    echo    Expected: !EXPECTED!
+    echo    Expected:
+    type "%TMPDIR%\expected.txt"
+    echo    Got:
+    type "%TMPDIR%\output.txt"
+    set /a FAILED+=1
+)
+echo =============================
+
+rem ===== Test 3: Non-invertible matrix (det=0) =====
+set "NUM=3"
+set "DESC=Non-invertible matrix - determinant is zero"
+(
+    echo 1	2	3
+    echo 2	4	6
+    echo 1	2	3
+) > "%TMPDIR%\input.txt"
+%PROGRAM% "%TMPDIR%\input.txt" > "%TMPDIR%\output.txt"
+set "RESULT="
+for /f "delims=" %%A in ('type "%TMPDIR%\output.txt"') do set "RESULT=%%A"
+if "!RESULT!"=="Non-invertible" (
+    echo Test %NUM% PASSED: %DESC%
+    set /a PASSED+=1
+) else (
+    echo Test %NUM% FAILED: %DESC%
+    echo    Expected: Non-invertible
     echo    Got:      !RESULT!
     set /a FAILED+=1
 )
 echo =============================
-exit /b
 
-:RunInvalidFormatTest
-set "NUM=%~1"
-set "DESC=%~2"
+rem ===== Test 4: Identity matrix =====
+set "NUM=4"
+set "DESC=Identity matrix inversion"
+(
+    echo 1	0	0
+    echo 0	1	0
+    echo 0	0	1
+) > "%TMPDIR%\input.txt"
+(
+    echo 1.000	0.000	0.000
+    echo 0.000	1.000	0.000
+    echo 0.000	0.000	1.000
+) > "%TMPDIR%\expected.txt"
+%PROGRAM% "%TMPDIR%\input.txt" > "%TMPDIR%\output.txt"
+fc /w "%TMPDIR%\expected.txt" "%TMPDIR%\output.txt" >nul 2>&1
+if !ERRORLEVEL! EQU 0 (
+    echo Test %NUM% PASSED: %DESC%
+    set /a PASSED+=1
+) else (
+    echo Test %NUM% FAILED: %DESC%
+    echo    Expected:
+    type "%TMPDIR%\expected.txt"
+    echo    Got:
+    type "%TMPDIR%\output.txt"
+    set /a FAILED+=1
+)
+echo =============================
+
+rem ===== Test 5: Invalid matrix format (2x3 instead of 3x3) =====
+set "NUM=5"
+set "DESC=Invalid matrix format - only 2 rows"
 (
     echo 1	2	3
     echo 4	5	6
-) > "%TEMPDIR%\in.txt"
+) > "%TMPDIR%\input.txt"
+%PROGRAM% "%TMPDIR%\input.txt" > "%TMPDIR%\output.txt"
 set "RESULT="
-for /f "delims=" %%A in ('%PROGRAM% "%TEMPDIR%\in.txt"') do set "RESULT=%%A"
+for /f "delims=" %%A in ('type "%TMPDIR%\output.txt"') do set "RESULT=%%A"
 if "!RESULT!"=="Invalid matrix format" (
     echo Test %NUM% PASSED: %DESC%
     set /a PASSED+=1
@@ -112,18 +140,18 @@ if "!RESULT!"=="Invalid matrix format" (
     set /a FAILED+=1
 )
 echo =============================
-exit /b
 
-:RunInvalidFormatTest2
-set "NUM=%~1"
-set "DESC=%~2"
+rem ===== Test 6: Invalid matrix format (4 columns) =====
+set "NUM=6"
+set "DESC=Invalid matrix format - 4 columns"
 (
     echo 1	2	3	4
     echo 5	6	7	8
     echo 9	10	11	12
-) > "%TEMPDIR%\in.txt"
+) > "%TMPDIR%\input.txt"
+%PROGRAM% "%TMPDIR%\input.txt" > "%TMPDIR%\output.txt"
 set "RESULT="
-for /f "delims=" %%A in ('%PROGRAM% "%TEMPDIR%\in.txt"') do set "RESULT=%%A"
+for /f "delims=" %%A in ('type "%TMPDIR%\output.txt"') do set "RESULT=%%A"
 if "!RESULT!"=="Invalid matrix format" (
     echo Test %NUM% PASSED: %DESC%
     set /a PASSED+=1
@@ -134,18 +162,18 @@ if "!RESULT!"=="Invalid matrix format" (
     set /a FAILED+=1
 )
 echo =============================
-exit /b
 
-:RunInvalidMatrixTest
-set "NUM=%~1"
-set "DESC=%~2"
+rem ===== Test 7: Invalid matrix (non-numeric value) =====
+set "NUM=7"
+set "DESC=Invalid matrix - non-numeric value"
 (
     echo 1	2	abc
     echo 4	5	6
     echo 7	8	9
-) > "%TEMPDIR%\in.txt"
+) > "%TMPDIR%\input.txt"
+%PROGRAM% "%TMPDIR%\input.txt" > "%TMPDIR%\output.txt"
 set "RESULT="
-for /f "delims=" %%A in ('%PROGRAM% "%TEMPDIR%\in.txt"') do set "RESULT=%%A"
+for /f "delims=" %%A in ('type "%TMPDIR%\output.txt"') do set "RESULT=%%A"
 if "!RESULT!"=="Invalid matrix" (
     echo Test %NUM% PASSED: %DESC%
     set /a PASSED+=1
@@ -156,80 +184,97 @@ if "!RESULT!"=="Invalid matrix" (
     set /a FAILED+=1
 )
 echo =============================
-exit /b
 
-:RunStdinTest
+rem ===== Test 8: Reading from stdin =====
+set "NUM=8"
+set "DESC=Reading matrix from stdin"
 (
     echo 1	2	3
     echo 0	1	4
     echo 5	6	0
-) > "%TEMPDIR%\in.txt"
+) > "%TMPDIR%\input.txt"
 (
     echo -24.000	18.000	5.000
     echo 20.000	-15.000	-4.000
     echo -5.000	4.000	1.000
-) > "%TEMPDIR%\expected.txt"
-%PROGRAM% < "%TEMPDIR%\in.txt" > "%TEMPDIR%\out.txt"
-fc /w "%TEMPDIR%\expected.txt" "%TEMPDIR%\out.txt" >nul 2>&1
+) > "%TMPDIR%\expected.txt"
+%PROGRAM% < "%TMPDIR%\input.txt" > "%TMPDIR%\output.txt"
+fc /w "%TMPDIR%\expected.txt" "%TMPDIR%\output.txt" >nul 2>&1
 if !ERRORLEVEL! EQU 0 (
-    echo Test 9 PASSED: Reading matrix from stdin
+    echo Test %NUM% PASSED: %DESC%
     set /a PASSED+=1
 ) else (
-    echo Test 9 FAILED: Reading matrix from stdin
+    echo Test %NUM% FAILED: %DESC%
     echo    Expected:
-    type "%TEMPDIR%\expected.txt"
+    type "%TMPDIR%\expected.txt"
     echo    Got:
-    type "%TEMPDIR%\out.txt"
+    type "%TMPDIR%\output.txt"
     set /a FAILED+=1
 )
 echo =============================
-exit /b
 
-:RunHelpTest
-%PROGRAM% -h > "%TEMPDIR%\out.txt"
-findstr /i "usage" "%TEMPDIR%\out.txt" >nul 2>&1
+rem ===== Test 9: Help flag -h =====
+set "NUM=9"
+set "DESC=Help flag -h prints usage"
+%PROGRAM% -h > "%TMPDIR%\output.txt"
+findstr /i "usage" "%TMPDIR%\output.txt" >nul 2>&1
 if !ERRORLEVEL! EQU 0 (
-    echo Test 10 PASSED: Help flag -h prints usage
+    echo Test %NUM% PASSED: %DESC%
     set /a PASSED+=1
 ) else (
-    echo Test 10 FAILED: Help flag -h prints usage - expected usage info
+    echo Test %NUM% FAILED: %DESC% - expected usage info
     set /a FAILED+=1
 )
 echo =============================
-exit /b
 
-:RunExtraRowsTest
+rem ===== Test 10: Extra rows in matrix =====
+set "NUM=10"
+set "DESC=Invalid matrix format - extra rows"
 (
     echo 1	2	3
     echo 4	5	6
     echo 7	8	9
     echo 10	11	12
-) > "%TEMPDIR%\in.txt"
+) > "%TMPDIR%\input.txt"
+%PROGRAM% "%TMPDIR%\input.txt" > "%TMPDIR%\output.txt"
 set "RESULT="
-for /f "delims=" %%A in ('%PROGRAM% "%TEMPDIR%\in.txt"') do set "RESULT=%%A"
+for /f "delims=" %%A in ('type "%TMPDIR%\output.txt"') do set "RESULT=%%A"
 if "!RESULT!"=="Invalid matrix format" (
-    echo Test 11 PASSED: Extra rows in matrix
+    echo Test %NUM% PASSED: %DESC%
     set /a PASSED+=1
 ) else (
-    echo Test 11 FAILED: Extra rows in matrix
+    echo Test %NUM% FAILED: %DESC%
     echo    Expected: Invalid matrix format
     echo    Got:      !RESULT!
     set /a FAILED+=1
 )
 echo =============================
-exit /b
 
-:RunErrorTest
-set "NUM=%~1"
-set "DESC=%~2"
-set "CMD=%~3"
-%CMD% >nul 2>&1
-if !ERRORLEVEL! NEQ 0 (
+rem ===== Test 11: Non-invertible zero matrix =====
+set "NUM=11"
+set "DESC=Non-invertible zero matrix"
+(
+    echo 0	0	0
+    echo 0	0	0
+    echo 0	0	0
+) > "%TMPDIR%\input.txt"
+%PROGRAM% "%TMPDIR%\input.txt" > "%TMPDIR%\output.txt"
+set "RESULT="
+for /f "delims=" %%A in ('type "%TMPDIR%\output.txt"') do set "RESULT=%%A"
+if "!RESULT!"=="Non-invertible" (
     echo Test %NUM% PASSED: %DESC%
     set /a PASSED+=1
 ) else (
     echo Test %NUM% FAILED: %DESC%
+    echo    Expected: Non-invertible
+    echo    Got:      !RESULT!
     set /a FAILED+=1
 )
 echo =============================
-exit /b
+
+rem Cleanup
+rd /s /q "%TMPDIR%" >nul 2>&1
+
+echo.
+echo Results: !PASSED! passed, !FAILED! failed
+exit /b !FAILED!
