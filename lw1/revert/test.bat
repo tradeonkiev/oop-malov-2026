@@ -10,11 +10,11 @@ if not exist %PROGRAM% (
     exit /b 1
 )
 
-rem Create temp directory for test files
+echo Create temp directory for test files
 set "TMPDIR=%~dp0tmp_test"
 if not exist "%TMPDIR%" mkdir "%TMPDIR%"
 
-rem ===== Test 1: Basic integer matrix (example 1) =====
+echo ===== Test 1: Basic integer matrix (example 1) =====
 set "NUM=1"
 set "DESC=Basic integer matrix inversion"
 (
@@ -42,7 +42,7 @@ if !ERRORLEVEL! EQU 0 (
 )
 echo =============================
 
-rem ===== Test 2: Float matrix (example 2) =====
+echo ===== Test 2: Float matrix (example 2) =====
 set "NUM=2"
 set "DESC=Float matrix inversion"
 (
@@ -70,7 +70,7 @@ if !ERRORLEVEL! EQU 0 (
 )
 echo =============================
 
-rem ===== Test 3: Non-invertible matrix (det=0) =====
+echo ===== Test 3: Non-invertible matrix (det=0) =====
 set "NUM=3"
 set "DESC=Non-invertible matrix - determinant is zero"
 (
@@ -92,7 +92,7 @@ if "!RESULT!"=="Non-invertible" (
 )
 echo =============================
 
-rem ===== Test 4: Identity matrix =====
+echo ===== Test 4: Identity matrix =====
 set "NUM=4"
 set "DESC=Identity matrix inversion"
 (
@@ -120,7 +120,7 @@ if !ERRORLEVEL! EQU 0 (
 )
 echo =============================
 
-rem ===== Test 5: Invalid matrix format (2x3 instead of 3x3) =====
+echo ===== Test 5: Invalid matrix format (2x3 instead of 3x3) =====
 set "NUM=5"
 set "DESC=Invalid matrix format - only 2 rows"
 (
@@ -141,7 +141,7 @@ if "!RESULT!"=="Invalid matrix format" (
 )
 echo =============================
 
-rem ===== Test 6: Invalid matrix format (4 columns) =====
+echo ===== Test 6: Invalid matrix format (4 columns) =====
 set "NUM=6"
 set "DESC=Invalid matrix format - 4 columns"
 (
@@ -163,7 +163,7 @@ if "!RESULT!"=="Invalid matrix format" (
 )
 echo =============================
 
-rem ===== Test 7: Invalid matrix (non-numeric value) =====
+echo ===== Test 7: Invalid matrix (non-numeric value) =====
 set "NUM=7"
 set "DESC=Invalid matrix - non-numeric value"
 (
@@ -185,7 +185,7 @@ if "!RESULT!"=="Invalid matrix" (
 )
 echo =============================
 
-rem ===== Test 8: Reading from stdin =====
+echo ===== Test 8: Reading from stdin =====
 set "NUM=8"
 set "DESC=Reading matrix from stdin"
 (
@@ -213,7 +213,7 @@ if !ERRORLEVEL! EQU 0 (
 )
 echo =============================
 
-rem ===== Test 9: Help flag -h =====
+echo ===== Test 9: Help flag -h =====
 set "NUM=9"
 set "DESC=Help flag -h prints usage"
 %PROGRAM% -h > "%TMPDIR%\output.txt"
@@ -227,7 +227,7 @@ if !ERRORLEVEL! EQU 0 (
 )
 echo =============================
 
-rem ===== Test 10: Extra rows in matrix =====
+echo ===== Test 10: Extra rows in matrix =====
 set "NUM=10"
 set "DESC=Invalid matrix format - extra rows"
 (
@@ -250,7 +250,7 @@ if "!RESULT!"=="Invalid matrix format" (
 )
 echo =============================
 
-rem ===== Test 11: Non-invertible zero matrix =====
+echo ===== Test 11: Non-invertible zero matrix =====
 set "NUM=11"
 set "DESC=Non-invertible zero matrix"
 (
@@ -272,7 +272,7 @@ if "!RESULT!"=="Non-invertible" (
 )
 echo =============================
 
-rem Cleanup
+echo Cleanup
 rd /s /q "%TMPDIR%" >nul 2>&1
 
 echo.

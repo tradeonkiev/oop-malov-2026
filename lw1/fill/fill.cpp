@@ -129,14 +129,14 @@ void WriteGrid(std::ostream& output, const Grid& grid)
 
 	for (int i = 0; i <= lastRow; i++)
 	{
-		size_t end = grid[i].find_last_not_of(' ');
+		int end = grid[i].find_last_not_of(' ');
 		if (end != std::string::npos)
 		{
-			output << grid[i].substr(0, end + 1) << "\n";
+			output << grid[i].substr(0, end + 1) << '\n';
 		}
 		else
 		{
-			output << "\n";
+			output << '\n';
 		}
 	}
 }
@@ -203,7 +203,6 @@ void FillAllMarkers(Grid& grid)
 	}
 }
 
-
 void DisplayHelpNotation(std::ostream& output)
 {
 	output << "Usage:\n"
@@ -211,6 +210,3 @@ void DisplayHelpNotation(std::ostream& output)
 		   << "  Stdin mode: run without arguments, enter image, then EOF"
 		   << std::endl;
 }
-
-
-

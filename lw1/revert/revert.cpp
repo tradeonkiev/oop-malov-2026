@@ -1,10 +1,10 @@
-// #include "pch.h"
+﻿// #include "pch.h"
 
-#include <iostream>
 #include <fstream>
+#include <iomanip>
+#include <iostream>
 #include <sstream>
 #include <string>
-#include <iomanip>
 #include <vector>
 
 const int SIZE = 3;
@@ -58,7 +58,8 @@ int main(int argc, char* argv[])
 
 	double det = Determinant(matrix);
 
-	if (std::abs(det) < 1e-9) det = 0.0;
+	if (std::abs(det) < 1e-9)
+		det = 0.0;
 
 	if (!det)
 	{
@@ -165,7 +166,8 @@ void InvertMatrix(const double matrix[SIZE][SIZE], double result[SIZE][SIZE])
 		for (int j = 0; j < SIZE; j++)
 		{
 			result[i][j] = power * Minor(matrix, j, i) / det;
-			if (std::abs(result[i][j]) < 1e-9) result[i][j] = 0.0;
+			if (std::abs(result[i][j]) < 1e-9)
+				result[i][j] = 0.0;
 			power *= -1;
 		}
 	}

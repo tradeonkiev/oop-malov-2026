@@ -85,16 +85,18 @@ std::string ReplaceString(
 	const std::string& searchString,
 	const std::string& replacementString)
 {
-	if (searchString.empty() && subject.empty()) return replacementString;
-	
-	if (searchString.empty()) return subject;
+	if (searchString.empty() && subject.empty())
+		return replacementString;
 
-	size_t pos = 0;
+	if (searchString.empty())
+		return subject;
+
+	int pos = 0;
 	std::string result;
 
 	while (pos < subject.length())
 	{
-		size_t foundPos = subject.find(searchString, pos);
+		int foundPos = subject.find(searchString, pos);
 		if (foundPos == std::string::npos)
 		{
 			result.append(subject, pos, subject.length() - pos);
@@ -116,4 +118,3 @@ void DisplayHelpNotation(std::ostream& output)
 		   << "  Stdin mode: run without arguments, enter search string, replacement string, then text"
 		   << std::endl;
 }
-
