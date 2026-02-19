@@ -1,0 +1,3 @@
+Usage:
+  File mode:  fill.exe <input file> <output file>
+  Stdin mode: run without arguments, enter image, then EOF

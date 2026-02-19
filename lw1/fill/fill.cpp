@@ -103,7 +103,11 @@ Grid ReadGrid(std::istream& input)
 		grid.push_back(line);
 	}
 
-	// дополняем все строки до MAX_SIZE пробелами, чтобы заливка могла проливаться
+	while (grid.size() < MAX_SIZE)
+	{
+		grid.push_back(std::string(MAX_SIZE, ' '));
+	}
+
 	for (std::string& row : grid)
 	{
 		if (row.length() < MAX_SIZE)
@@ -117,12 +121,18 @@ Grid ReadGrid(std::istream& input)
 
 void WriteGrid(std::ostream& output, const Grid& grid)
 {
-	for (const std::string& line : grid)
+	int lastRow = grid.size() - 1;
+	while (lastRow >= 0 && grid[lastRow].find_first_not_of(' ') == std::string::npos)
 	{
-		size_t end = line.find_last_not_of(' ');
+		lastRow--;
+	}
+
+	for (int i = 0; i <= lastRow; i++)
+	{
+		size_t end = grid[i].find_last_not_of(' ');
 		if (end != std::string::npos)
 		{
-			output << line.substr(0, end + 1) << "\n";
+			output << grid[i].substr(0, end + 1) << "\n";
 		}
 		else
 		{
@@ -181,9 +191,9 @@ void FloodFill(Grid& grid, int startRow, int startCol)
 
 void FillAllMarkers(Grid& grid)
 {
-	for (int r = 0; r < (int)grid.size(); r++)
+	for (int r = 0; r < grid.size(); r++)
 	{
-		for (int c = 0; c < (int)grid[r].length(); c++)
+		for (int c = 0; c < grid[r].length(); c++)
 		{
 			if (grid[r][c] == 'O')
 			{
