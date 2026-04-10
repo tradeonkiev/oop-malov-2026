@@ -13,7 +13,7 @@ std::string ToLower(const std::string& s)
 std::string JoinStrings(const std::vector<std::string>& vec, const std::string& separator)
 {
     std::string result;
-    for (size_t i = 0; i < vec.size(); ++i)
+    for (int i = 0; i < vec.size(); ++i)
     {
         if (i > 0)
             result += separator;
