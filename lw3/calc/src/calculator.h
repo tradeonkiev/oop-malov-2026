@@ -1,4 +1,3 @@
-#pragma once
 #include "function.h"
 #include "variable.h"
 #include <map>
