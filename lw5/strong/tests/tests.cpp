@@ -7,11 +7,9 @@
 #include <string>
 #include <utility>
 
-
 TEST(Strong, Default)
 {
 	Strong s;
-	stdL
 	EXPECT_EQ(s.GetLength(), 0);
 	EXPECT_EQ(s.GetStringData()[0], '\0');
 }
