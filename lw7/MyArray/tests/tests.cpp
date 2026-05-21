@@ -78,7 +78,7 @@ TEST(MyArray, ConstOperatorSquareBracketsThrowsWhenIndexOutOfRange)
 	MyArray<std::string> arr;
 	arr.PushBack("one");
 
-	const MyArray<std::string>& constArr = arr;
+	const MyArray<std::string> constArr = arr;
 
 	EXPECT_EQ(constArr[0], "one");
 	EXPECT_THROW(constArr[1], std::out_of_range);
@@ -103,7 +103,7 @@ TEST(MyArray, ResizeCanIncreaseSizeAndDefaultInitializeNewElements)
 
 	arr.Resize(5);
 
-	ASSERT_EQ(arr.GetSize(), 5u);
+	ASSERT_EQ(arr.GetSize(), 5);
 	EXPECT_EQ(arr[0], 10);
 	EXPECT_EQ(arr[1], 20);
 	EXPECT_EQ(arr[2], 0);
@@ -119,7 +119,7 @@ TEST(MyArray, ResizeCanIncreaseStringArrayAndDefaultInitializeNewElements)
 
 	arr.Resize(3);
 
-	ASSERT_EQ(arr.GetSize(), 3u);
+	ASSERT_EQ(arr.GetSize(), 3);
 	EXPECT_EQ(arr[0], "hello");
 	EXPECT_EQ(arr[1], "");
 	EXPECT_EQ(arr[2], "");
@@ -136,7 +136,7 @@ TEST(MyArray, ResizeCanDecreaseSize)
 
 	arr.Resize(2);
 
-	ASSERT_EQ(arr.GetSize(), 2u);
+	ASSERT_EQ(arr.GetSize(), 2);
 	EXPECT_EQ(arr[0], 1);
 	EXPECT_EQ(arr[1], 2);
 	EXPECT_THROW(arr[2], std::out_of_range);
@@ -153,7 +153,7 @@ TEST(MyArray, ResizeToZeroMakesArrayEmptyButMayKeepCapacity)
 
 	arr.Resize(0);
 
-	EXPECT_EQ(arr.GetSize(), 0u);
+	EXPECT_EQ(arr.GetSize(), 0);
 	EXPECT_EQ(arr.GetCapacity(), oldCapacity);
 	EXPECT_THROW(arr[0], std::out_of_range);
 }
@@ -182,7 +182,7 @@ TEST(MyArray, CopyConstructorCopiesElements)
 
 	MyArray<std::string> copy(source);
 
-	ASSERT_EQ(copy.GetSize(), 2u);
+	ASSERT_EQ(copy.GetSize(), 2);
 	EXPECT_EQ(copy[0], "one");
 	EXPECT_EQ(copy[1], "two");
 
@@ -207,7 +207,7 @@ TEST(MyArray, CopyAssignmentCopiesElements)
 
 	target = source;
 
-	ASSERT_EQ(target.GetSize(), 2u);
+	ASSERT_EQ(target.GetSize(), 2);
 	EXPECT_EQ(target[0], 10);
 	EXPECT_EQ(target[1], 20);
 
@@ -226,7 +226,7 @@ TEST(MyArray, CopyAssignmentToSelfKeepsArrayValid)
 
 	arr = arr;
 
-	ASSERT_EQ(arr.GetSize(), 2u);
+	ASSERT_EQ(arr.GetSize(), 2);
 	EXPECT_EQ(arr[0], 1);
 	EXPECT_EQ(arr[1], 2);
 }
@@ -240,12 +240,12 @@ TEST(MyArray, MoveConstructorMovesData)
 
 	MyArray<std::string> moved(std::move(source));
 
-	ASSERT_EQ(moved.GetSize(), 2u);
+	ASSERT_EQ(moved.GetSize(), 2);
 	EXPECT_EQ(moved[0], "first");
 	EXPECT_EQ(moved[1], "second");
 
-	EXPECT_EQ(source.GetSize(), 0u);
-	EXPECT_EQ(source.GetCapacity(), 0u);
+	EXPECT_EQ(source.GetSize(), 0);
+	EXPECT_EQ(source.GetCapacity(), 0);
 }
 
 TEST(MyArray, MoveAssignmentMovesData)
@@ -261,12 +261,12 @@ TEST(MyArray, MoveAssignmentMovesData)
 
 	target = std::move(source);
 
-	ASSERT_EQ(target.GetSize(), 2u);
+	ASSERT_EQ(target.GetSize(), 2);
 	EXPECT_EQ(target[0], "hello");
 	EXPECT_EQ(target[1], "world");
 
-	EXPECT_EQ(source.GetSize(), 0u);
-	EXPECT_EQ(source.GetCapacity(), 0u);
+	EXPECT_EQ(source.GetSize(), 0);
+	EXPECT_EQ(source.GetCapacity(), 0);
 }
 
 TEST(MyArray, MoveAssignmentToSelfKeepsArrayValid)
@@ -278,7 +278,7 @@ TEST(MyArray, MoveAssignmentToSelfKeepsArrayValid)
 
 	arr = std::move(arr);
 
-	ASSERT_EQ(arr.GetSize(), 2u);
+	ASSERT_EQ(arr.GetSize(), 2);
 	EXPECT_EQ(arr[0], 10);
 	EXPECT_EQ(arr[1], 20);
 }
@@ -424,7 +424,7 @@ TEST(MyArray, TemplateAssignmentConvertsElementsUsingStaticCast)
 
 	target = source;
 
-	ASSERT_EQ(target.GetSize(), 3u);
+	ASSERT_EQ(target.GetSize(), 3);
 	EXPECT_EQ(target[0], 1);
 	EXPECT_EQ(target[1], 2);
 	EXPECT_EQ(target[2], 3);

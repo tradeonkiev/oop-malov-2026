@@ -1,7 +1,7 @@
 #include <iterator>
 
 template <typename T>
-class MyIterator    
+class MyIterator
 {
 public:
 	using iterator_category = std::random_access_iterator_tag;
@@ -18,11 +18,6 @@ public:
 	reference operator*() const
 	{
 		return *m_ptr;
-	}
-
-	pointer operator->() const
-	{
-		return m_ptr;
 	}
 
 	MyIterator& operator++()

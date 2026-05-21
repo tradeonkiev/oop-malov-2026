@@ -162,9 +162,9 @@ public:
 		m_size = newSize;
 	}
 
-	void Clear() noexcept
+	void Clear() 
 	{
-		delete[] m_data;
+        delete[] m_data;
 
 		m_data = nullptr;
 		m_size = 0;
