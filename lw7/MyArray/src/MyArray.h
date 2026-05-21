@@ -13,16 +13,16 @@ public:
 	using Iterator = MyIterator<T>;
 	using ReverseIterator = std::reverse_iterator<Iterator>;
 	using ConstIterator = MyIterator<const T>;
-	using ConstRevetseIterator = std::reverse_iterator<ConstIterator>;
+	using ConstReverseIterator = std::reverse_iterator<ConstIterator>;
 
-	MyArray()
+	MyArray() noexcept
 		: m_data(nullptr)
 		, m_size(0)
 		, m_capacity(0)
 	{
 	}
 
-	MyArray(const MyArray& other)
+	MyArray(const MyArray& other) noexcept
 		: m_data(nullptr)
 		, m_size(0)
 		, m_capacity(0)
@@ -45,7 +45,7 @@ public:
 		delete[] m_data;
 	}
 
-	MyArray& operator=(const MyArray& other)
+	MyArray& operator=(const MyArray& other) noexcept
 	{
 		if (this != &other)
 		{
@@ -114,6 +114,7 @@ public:
 
 	size_t GetCapacity() const
 	{
+		return m_capacity;
 	}
 
 	void Resize(size_t newSize)
@@ -132,7 +133,7 @@ public:
 			return;
 		}
 
-		size_t newCapacity = std::max(newSize, !m_capacity ? m_capacity * 2 : 1);
+		size_t newCapacity = std::max(newSize, !m_capacity ? 1 : m_capacity * 2);
 
 		T* newData = new T[newCapacity];
 
@@ -192,6 +193,16 @@ public:
 		return Iterator(m_data + m_size);
 	}
 
+	ConstIterator begin() const
+	{
+		return ConstIterator(m_data);
+	}
+
+	ConstIterator end() const
+	{
+		return ConstIterator(m_data + m_size);
+	}
+
 	ReverseIterator rbegin()
 	{
 		return ReverseIterator(end());
@@ -214,12 +225,12 @@ public:
 
 	ConstReverseIterator crbegin() const
 	{
-		return ConstReverseIterarot(begin());
+		return ConstReverseIterator(cend());
 	}
 
 	ConstReverseIterator crend() const
 	{
-		return ConstReverseIterator(end());
+		return ConstReverseIterator(cbegin());
 	}
 
 private:
@@ -296,5 +307,9 @@ private:
 		{
 			throw std::out_of_range("index out of range");
 		}
+	}
+
+	void CreateObjects(size_t Length)
+	{
 	}
 };
