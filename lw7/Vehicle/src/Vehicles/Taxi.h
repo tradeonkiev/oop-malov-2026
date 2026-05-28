@@ -9,8 +9,8 @@ class Taxi : public CarImpl<ITaxi, IPerson>
 public:
 	Taxi() = delete;
 
-	Taxi(size_t placeCount, MakeOfTheCar make)
-		: CarImpl<ITaxi, IPerson>(placeCount, make)
+	Taxi(size_t placeCount, MakeOfTheCar brand)
+		: CarImpl<ITaxi, IPerson>(placeCount, brand)
 	{
 	}
 };

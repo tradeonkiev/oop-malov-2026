@@ -9,8 +9,8 @@ class PoliceCar : public CarImpl<IPoliceCar, IPoliceMan>
 public:
 	PoliceCar() = delete;
 
-	PoliceCar(size_t placeCount, MakeOfTheCar make)
-		: CarImpl<IPoliceCar, IPoliceMan>(placeCount, make)
+	PoliceCar(size_t placeCount, MakeOfTheCar brand)
+		: CarImpl<IPoliceCar, IPoliceMan>(placeCount, brand)
 	{
 	}
 };

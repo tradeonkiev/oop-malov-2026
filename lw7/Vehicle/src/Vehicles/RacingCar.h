@@ -9,8 +9,8 @@ class RacingCar : public CarImpl<IRacingCar, IRacer>
 public:
 	RacingCar() = delete;
 
-	RacingCar(size_t placeCount, MakeOfTheCar make)
-		: CarImpl<IRacingCar, IRacer>(placeCount, make)
+	RacingCar(size_t placeCount, MakeOfTheCar brand)
+		: CarImpl<IRacingCar, IRacer>(placeCount, brand)
 	{
 	}
 };
