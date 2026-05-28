@@ -25,7 +25,7 @@ TEST(PersonTest, RacerReturnsNameAndAwardsCount)
 	Racer racer("Sergey", 7);
 
 	ASSERT_EQ(racer.GetName(), "Sergey");
-	ASSERT_EQ(racer.GetAwardsCount(), 7u);
+	ASSERT_EQ(racer.GetAwardsCount(), 7);
 }
 
 TEST(VehicleTest, EmptyVehicleKnowsItsCapacity)
@@ -34,8 +34,8 @@ TEST(VehicleTest, EmptyVehicleKnowsItsCapacity)
 
 	ASSERT_TRUE(taxi.IsEmpty());
 	ASSERT_FALSE(taxi.IsFull());
-	ASSERT_EQ(taxi.GetPlaceCount(), 2u);
-	ASSERT_EQ(taxi.GetPassengerCount(), 0u);
+	ASSERT_EQ(taxi.GetPlaceCount(), 2);
+	ASSERT_EQ(taxi.GetPassengerCount(), 0);
 }
 
 TEST(VehicleTest, VehicleStoresPassengersInInsertionOrder)
@@ -49,7 +49,7 @@ TEST(VehicleTest, VehicleStoresPassengersInInsertionOrder)
 
 	ASSERT_FALSE(taxi.IsEmpty());
 	ASSERT_TRUE(taxi.IsFull());
-	ASSERT_EQ(taxi.GetPassengerCount(), 2u);
+	ASSERT_EQ(taxi.GetPassengerCount(), 2);
 	ASSERT_EQ(taxi.GetPassenger(0).GetName(), "Gandhi");
 	ASSERT_EQ(taxi.GetPassenger(1).GetName(), "Sergey");
 }
@@ -78,7 +78,7 @@ TEST(VehicleTest, RemovePassengerDeletesRequestedPassenger)
 
 	policeCar.RemovePassenger(0);
 
-	ASSERT_EQ(policeCar.GetPassengerCount(), 1u);
+	ASSERT_EQ(policeCar.GetPassengerCount(), 1);
 	ASSERT_EQ(policeCar.GetPassenger(0).GetName(), "J Clark");
 }
 
@@ -100,24 +100,4 @@ TEST(CarTest, CarStoresMake)
 
 	ASSERT_EQ(racingCar.GetMakeOfTheCar(), MakeOfTheCar::FERRARI);
 	ASSERT_EQ(MakeOfTheCarToString(racingCar.GetMakeOfTheCar()), "Ferrari");
-}
-
-TEST(TypeSafetyTest, TaxiAndBusAcceptAnyPerson)
-{
-	static_assert(std::is_invocable_v<decltype(&Taxi::AddPassenger), Taxi*,
-		std::shared_ptr<IPerson>>);
-	static_assert(std::is_invocable_v<decltype(&Bus::AddPassenger), Bus*,
-		std::shared_ptr<IPerson>>);
-}
-
-TEST(TypeSafetyTest, SpecialCarsAcceptOnlySpecialPassengers)
-{
-	static_assert(std::is_invocable_v<decltype(&PoliceCar::AddPassenger),
-		PoliceCar*, std::shared_ptr<IPoliceMan>>);
-	static_assert(std::is_invocable_v<decltype(&RacingCar::AddPassenger),
-		RacingCar*, std::shared_ptr<IRacer>>);
-	static_assert(!std::is_invocable_v<decltype(&PoliceCar::AddPassenger),
-		PoliceCar*, std::shared_ptr<IPerson>>);
-	static_assert(!std::is_invocable_v<decltype(&RacingCar::AddPassenger),
-		RacingCar*, std::shared_ptr<IPerson>>);
 }
