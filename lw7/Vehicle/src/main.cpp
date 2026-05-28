@@ -6,34 +6,34 @@
 
 void PrintPoliceCarPassengers(IPoliceCar const& policeCar)
 {
-	std::cout << "Police car (" << MakeOfTheCarToString(policeCar.GetMakeOfTheCar())
-			  << ") passengers:\n";
+	std::cout << "Police car " << MakeOfTheCarToString(policeCar.GetMakeOfTheCar())
+			  << " passengers:\n";
 
 	for (size_t i = 0; i < policeCar.GetPassengerCount(); ++i)
 	{
 		auto const& policeMan = policeCar.GetPassenger(i);
-		std::cout << "- " << policeMan.GetName()
-				  << ", " << policeMan.GetDepartmentName() << "\n";
+		std::cout << "* " << policeMan.GetName()
+				  << "\t-\t" << policeMan.GetDepartmentName() << std::endl;
 	}
 }
 
 void PrintTaxiPassengers(ITaxi const& taxi)
 {
-	std::cout << "Taxi (" << MakeOfTheCarToString(taxi.GetMakeOfTheCar())
-			  << ") passengers:\n";
+	std::cout << "Taxi " << MakeOfTheCarToString(taxi.GetMakeOfTheCar())
+			  << " passengers: " << std::endl;
 
 	for (size_t i = 0; i < taxi.GetPassengerCount(); ++i)
 	{
-		std::cout << "- " << taxi.GetPassenger(i).GetName() << "\n";
+		std::cout << "* " << taxi.GetPassenger(i).GetName() << "\n";
 	}
 }
 
 int main()
 {
-	
-	auto johnG = std::make_shared<PoliceMan>("джон гарик", "департамент северо-западной полиции");
-	auto dimB = std::make_shared<PoliceMan>("джим бигдик", "департамент северо-восточной полиции");
-	auto raja = std::make_shared<Person>("ганди раджи");
+
+	auto johnG = std::make_shared<PoliceMan>("john", "sw dep");
+	auto dimB = std::make_shared<PoliceMan>("jim", "ne dep");
+	auto raja = std::make_shared<Person>("raji");
 
 	PoliceCar policeCar(5, MakeOfTheCar::FORD);
 	policeCar.AddPassenger(johnG);
@@ -44,7 +44,7 @@ int main()
 
 	policeCar.RemovePassenger(1);
 
-	auto michaelS = std::make_shared<Racer>("михаил шумахер", 7);
+	auto michaelS = std::make_shared<Racer>("michael", 7);
 
 	Taxi taxi(2, MakeOfTheCar::TOYOTA);
 	taxi.AddPassenger(raja);
