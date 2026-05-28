@@ -15,14 +15,14 @@ public:
 	using ConstIterator = MyIterator<const T>;
 	using ConstReverseIterator = std::reverse_iterator<ConstIterator>;
 
-	MyArray() noexcept
+	MyArray()
 		: m_data(nullptr)
 		, m_size(0)
 		, m_capacity(0)
 	{
 	}
 
-	MyArray(const MyArray& other) noexcept
+	MyArray(const MyArray& other)
 		: m_data(nullptr)
 		, m_size(0)
 		, m_capacity(0)
@@ -30,7 +30,7 @@ public:
 		CopyFrom(other);
 	}
 
-	MyArray(MyArray&& other) noexcept
+	MyArray(MyArray&& other)
 		: m_data(other.m_data)
 		, m_size(other.m_size)
 		, m_capacity(other.m_capacity)
@@ -45,7 +45,7 @@ public:
 		delete[] m_data;
 	}
 
-	MyArray& operator=(const MyArray& other) noexcept
+	MyArray& operator=(const MyArray& other)
 	{
 		if (this != &other)
 		{
@@ -162,9 +162,9 @@ public:
 		m_size = newSize;
 	}
 
-	void Clear() 
+	void Clear()
 	{
-        delete[] m_data;
+		delete[] m_data;
 
 		m_data = nullptr;
 		m_size = 0;
@@ -249,19 +249,12 @@ private:
 
 		T* newData = new T[newCapacity];
 
-		try
+		for (size_t i = 0; i < m_size; ++i)
 		{
-			for (size_t i = 0; i < m_size; ++i)
-			{
-				newData[i] = std::move(m_data[i]);
-			}
-		}
-		catch (...)
-		{
-			delete[] newData;
-			throw;
+			newData[i] = std::move(m_data[i]);
 		}
 
+		// TODO: трай кетч убрать
 		delete[] m_data;
 
 		m_data = newData;
@@ -276,22 +269,13 @@ private:
 		}
 		T* newData = new T[other.m_capacity];
 
-		try
-		{
-			for (size_t i = 0; i < other.m_size; ++i)
-			{
-				newData[i] = other.m_data[i];
-			}
-		}
-		catch (...)
-		{
-			delete[] newData;
-			throw;
-		}
+		std::copy(other.m_data, other.m_data + other.m_size, newData);
 
 		m_data = newData;
 		m_size = other.m_size;
 		m_capacity = other.m_capacity;
+
+		// delete[] newData;
 	}
 
 	void Swap(MyArray& other) noexcept
@@ -303,13 +287,13 @@ private:
 
 	void CheckIndex(size_t index) const
 	{
-		if (index >= m_size)
+		if (index >= m_size || index < 0)
 		{
 			throw std::out_of_range("index out of range");
 		}
 	}
 
-	void CreateObjects(size_t Length)
-	{
-	}
+	// void CreateObjects(size_t Length)
+	// {
+	// }
 };

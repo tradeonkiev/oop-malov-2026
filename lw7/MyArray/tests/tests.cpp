@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+// TODO: тест на уменьшение капасити + мок для перемещения и копирования
+
 TEST(MyArray, IsEmptyAfterDefaultConstruction)
 {
 	MyArray<int> arr;

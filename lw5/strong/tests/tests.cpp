@@ -296,7 +296,7 @@ TEST(IteratorTest, OutOfRangeAssert)
 TEST(IteratorTest, ConstIteratorValueIsConst)
 {
 	Strong s("hello");
-
+	
 	using ItRef = decltype(*s.cbegin());
 	static_assert(std::is_const_v<std::remove_reference_t<ItRef>>);
 

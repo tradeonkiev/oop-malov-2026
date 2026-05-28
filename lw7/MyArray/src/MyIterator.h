@@ -111,3 +111,5 @@ public:
 private:
 	pointer m_ptr;
 };
+
+//  альберт камю мифы сизифы

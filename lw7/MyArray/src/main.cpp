@@ -13,7 +13,13 @@ int main()
 	MyArray<int> arr1;
 	arr1.PushBack(1);
 	arr1.PushBack(2);
+
+	MyArray<std::string> arr2;
+	arr2.PushBack("alo");
 	arr = arr1;
+	arr.Clear();
+	std::cout << arr[0] << std::endl;
+	// arr = arr2;
 
 	// for (int _ = 0; _ < 100; _++)
 	// {
