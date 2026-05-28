@@ -254,7 +254,6 @@ private:
 			newData[i] = std::move(m_data[i]);
 		}
 
-		// TODO: трай кетч убрать
 		delete[] m_data;
 
 		m_data = newData;

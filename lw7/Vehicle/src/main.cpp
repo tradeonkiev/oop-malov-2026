@@ -30,33 +30,34 @@ void PrintTaxiPassengers(ITaxi const& taxi)
 
 int main()
 {
-	auto johnSmith = std::make_shared<PoliceMan>("John Smith", "North-West Police Department");
-	auto jimClark = std::make_shared<PoliceMan>("Jim Clark", "South-East Police Department");
-	auto rajaGandhi = std::make_shared<Person>("Raja Gandhi");
+	
+	auto johnG = std::make_shared<PoliceMan>("джон гарик", "департамент северо-западной полиции");
+	auto dimB = std::make_shared<PoliceMan>("джим бигдик", "департамент северо-восточной полиции");
+	auto raja = std::make_shared<Person>("ганди раджи");
 
 	PoliceCar policeCar(5, MakeOfTheCar::FORD);
-	policeCar.AddPassenger(johnSmith);
-	policeCar.AddPassenger(jimClark);
+	policeCar.AddPassenger(johnG);
+	policeCar.AddPassenger(dimB);
 	// policeCar.AddPassenger(rajaGandhi);
 
 	PrintPoliceCarPassengers(policeCar);
 
 	policeCar.RemovePassenger(1);
 
-	auto michaelSchumacher = std::make_shared<Racer>("Michael Schumacher", 7);
+	auto michaelS = std::make_shared<Racer>("михаил шумахер", 7);
 
 	Taxi taxi(2, MakeOfTheCar::TOYOTA);
-	taxi.AddPassenger(rajaGandhi);
-	taxi.AddPassenger(michaelSchumacher);
-
+	taxi.AddPassenger(raja);
+	taxi.AddPassenger(michaelS);
 	taxi.RemovePassenger(0);
-	taxi.AddPassenger(jimClark);
+	taxi.AddPassenger(johnG);
 
 	PrintTaxiPassengers(taxi);
 
 	try
 	{
-		taxi.AddPassenger(rajaGandhi);
+		taxi.AddPassenger(raja);
+		taxi.AddPassenger(raja);
 	}
 	catch (std::logic_error const& e)
 	{

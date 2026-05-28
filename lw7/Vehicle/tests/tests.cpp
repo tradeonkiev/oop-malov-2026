@@ -14,17 +14,17 @@ TEST(PersonTest, PersonReturnsName)
 
 TEST(PersonTest, PoliceManReturnsNameAndDepartment)
 {
-	PoliceMan policeMan("J Smith", "NW Dep");
+	PoliceMan policeMan("Smith", "NW Dep");
 
-	ASSERT_EQ(policeMan.GetName(), "J Smith");
+	ASSERT_EQ(policeMan.GetName(), "Smith");
 	ASSERT_EQ(policeMan.GetDepartmentName(), "NW Dep");
 }
 
 TEST(PersonTest, RacerReturnsNameAndAwardsCount)
 {
-	Racer racer("Michael Schumacher", 7);
+	Racer racer("Sergey", 7);
 
-	ASSERT_EQ(racer.GetName(), "Michael Schumacher");
+	ASSERT_EQ(racer.GetName(), "Sergey");
 	ASSERT_EQ(racer.GetAwardsCount(), 7u);
 }
 
@@ -41,8 +41,8 @@ TEST(VehicleTest, EmptyVehicleKnowsItsCapacity)
 TEST(VehicleTest, VehicleStoresPassengersInInsertionOrder)
 {
 	Taxi taxi(2, MakeOfTheCar::TOYOTA);
-	auto driver = std::make_shared<Person>("Raja Gandhi");
-	auto racer = std::make_shared<Racer>("Michael Schumacher", 7);
+	auto driver = std::make_shared<Person>("Gandhi");
+	auto racer = std::make_shared<Racer>("Sergey", 7);
 
 	taxi.AddPassenger(driver);
 	taxi.AddPassenger(racer);
@@ -50,18 +50,16 @@ TEST(VehicleTest, VehicleStoresPassengersInInsertionOrder)
 	ASSERT_FALSE(taxi.IsEmpty());
 	ASSERT_TRUE(taxi.IsFull());
 	ASSERT_EQ(taxi.GetPassengerCount(), 2u);
-	ASSERT_EQ(taxi.GetPassenger(0).GetName(), "Raja Gandhi");
-	ASSERT_EQ(taxi.GetPassenger(1).GetName(), "Michael Schumacher");
+	ASSERT_EQ(taxi.GetPassenger(0).GetName(), "Gandhi");
+	ASSERT_EQ(taxi.GetPassenger(1).GetName(), "Sergey");
 }
 
 TEST(VehicleTest, FullVehicleRejectsNewPassengerWithLogicError)
 {
 	Taxi taxi(1, MakeOfTheCar::TOYOTA);
-	taxi.AddPassenger(std::make_shared<Person>("Raja Gandhi"));
+	taxi.AddPassenger(std::make_shared<Person>("Gandhi"));
 
-	ASSERT_THROW(taxi.AddPassenger(std::make_shared<PoliceMan>(
-					 "Jim Clark", "South-East Police Department")),
-		std::logic_error);
+	ASSERT_THROW(taxi.AddPassenger(std::make_shared<PoliceMan>("Clark", "SE dep")), std::logic_error);
 }
 
 TEST(VehicleTest, GettingOrRemovingPassengerByInvalidIndexThrowsOutOfRange)
@@ -87,7 +85,7 @@ TEST(VehicleTest, RemovePassengerDeletesRequestedPassenger)
 TEST(VehicleTest, RemoveAllPassengersClearsVehicle)
 {
 	Bus bus(3);
-	bus.AddPassenger(std::make_shared<Person>("Raja Gandhi"));
+	bus.AddPassenger(std::make_shared<Person>("Gandhi"));
 	bus.AddPassenger(std::make_shared<PoliceMan>("J Clark", "SE Dep"));
 
 	bus.RemoveAllPassengers();
