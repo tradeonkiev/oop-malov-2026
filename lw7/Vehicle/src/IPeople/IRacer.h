@@ -1,7 +1,5 @@
 #pragma once
-
 #include "IPerson.h"
-
 #include <cstddef>
 
 class IRacer : public IPerson

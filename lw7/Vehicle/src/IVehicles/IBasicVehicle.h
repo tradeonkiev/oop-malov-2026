@@ -1,5 +1,4 @@
 #pragma once
-
 #include <cstddef>
 
 // базовое транспортное средство

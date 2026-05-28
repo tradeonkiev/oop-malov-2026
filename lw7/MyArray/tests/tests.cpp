@@ -371,77 +371,6 @@ TEST(MyArray, MoveAssignmentToSelfKeepsArrayValid)
 	EXPECT_EQ(arr[1], 20);
 }
 
-TEST(MyArray, PushBackCopiesLvalueElements)
-{
-	CopyMoveMock::ResetCounters();
-
-	MyArray<CopyMoveMock> arr;
-	CopyMoveMock value(42);
-
-	arr.PushBack(value);
-
-	ASSERT_EQ(arr.GetSize(), 1);
-	EXPECT_EQ(arr[0].value, 42);
-	EXPECT_EQ(value.value, 42);
-	EXPECT_EQ(CopyMoveMock::copyAssignments, 1);
-	EXPECT_EQ(CopyMoveMock::moveAssignments, 0);
-}
-
-TEST(MyArray, PushBackMovesRvalueElementsAndExistingElementsOnGrowth)
-{
-	MyArray<CopyMoveMock> arr;
-
-	arr.PushBack(CopyMoveMock(10));
-
-	CopyMoveMock::ResetCounters();
-
-	arr.PushBack(CopyMoveMock(20));
-
-	ASSERT_EQ(arr.GetSize(), 2);
-	EXPECT_EQ(arr[0].value, 10);
-	EXPECT_EQ(arr[1].value, 20);
-	EXPECT_EQ(CopyMoveMock::copyAssignments, 0);
-	EXPECT_EQ(CopyMoveMock::moveAssignments, 2);
-}
-
-TEST(MyArray, CopyConstructorCopiesTrackedElements)
-{
-	MyArray<CopyMoveMock> source;
-
-	source.PushBack(CopyMoveMock(10));
-	source.PushBack(CopyMoveMock(20));
-
-	CopyMoveMock::ResetCounters();
-
-	MyArray<CopyMoveMock> copy(source);
-
-	ASSERT_EQ(copy.GetSize(), 2);
-	EXPECT_EQ(copy[0].value, 10);
-	EXPECT_EQ(copy[1].value, 20);
-	EXPECT_EQ(CopyMoveMock::copyAssignments, 2);
-	EXPECT_EQ(CopyMoveMock::moveAssignments, 0);
-}
-
-TEST(MyArray, MoveConstructorStealsTrackedElementsWithoutElementCopyOrMove)
-{
-	MyArray<CopyMoveMock> source;
-
-	source.PushBack(CopyMoveMock(10));
-	source.PushBack(CopyMoveMock(20));
-
-	CopyMoveMock::ResetCounters();
-
-	MyArray<CopyMoveMock> moved(std::move(source));
-
-	ASSERT_EQ(moved.GetSize(), 2);
-	EXPECT_EQ(moved[0].value, 10);
-	EXPECT_EQ(moved[1].value, 20);
-	EXPECT_EQ(source.GetSize(), 0);
-	EXPECT_EQ(source.GetCapacity(), 0);
-	EXPECT_EQ(CopyMoveMock::copyAssignments, 0);
-	EXPECT_EQ(CopyMoveMock::moveAssignments, 0);
-}
-
 TEST(MyArray, IteratorsAllowForwardTraversal)
 {
 	MyArray<int> arr;
@@ -631,4 +560,75 @@ TEST(MyArray, WorksAsDoubleArray)
 	EXPECT_DOUBLE_EQ(arr[0], 1.5);
 	EXPECT_DOUBLE_EQ(arr[1], 2.25);
 	EXPECT_DOUBLE_EQ(arr[2], 3.75);
+}
+
+TEST(MyArray, PushBackCopiesLvalueElements)
+{
+	CopyMoveMock::ResetCounters();
+
+	MyArray<CopyMoveMock> arr;
+	CopyMoveMock value(42);
+
+	arr.PushBack(value);
+
+	ASSERT_EQ(arr.GetSize(), 1);
+	EXPECT_EQ(arr[0].value, 42);
+	EXPECT_EQ(value.value, 42);
+	EXPECT_EQ(CopyMoveMock::copyAssignments, 1);
+	EXPECT_EQ(CopyMoveMock::moveAssignments, 0);
+}
+
+TEST(MyArray, PushBackMovesRvalueElementsAndExistingElementsOnGrowth)
+{
+	MyArray<CopyMoveMock> arr;
+
+	arr.PushBack(CopyMoveMock(10));
+
+	CopyMoveMock::ResetCounters();
+
+	arr.PushBack(CopyMoveMock(20));
+
+	ASSERT_EQ(arr.GetSize(), 2);
+	EXPECT_EQ(arr[0].value, 10);
+	EXPECT_EQ(arr[1].value, 20);
+	EXPECT_EQ(CopyMoveMock::copyAssignments, 0);
+	EXPECT_EQ(CopyMoveMock::moveAssignments, 2);
+}
+
+TEST(MyArray, CopyConstructorCopiesTrackedElements)
+{
+	MyArray<CopyMoveMock> source;
+
+	source.PushBack(CopyMoveMock(10));
+	source.PushBack(CopyMoveMock(20));
+
+	CopyMoveMock::ResetCounters();
+
+	MyArray<CopyMoveMock> copy(source);
+
+	ASSERT_EQ(copy.GetSize(), 2);
+	EXPECT_EQ(copy[0].value, 10);
+	EXPECT_EQ(copy[1].value, 20);
+	EXPECT_EQ(CopyMoveMock::copyAssignments, 2);
+	EXPECT_EQ(CopyMoveMock::moveAssignments, 0);
+}
+
+TEST(MyArray, MoveConstructorStealsTrackedElementsWithoutElementCopyOrMove)
+{
+	MyArray<CopyMoveMock> source;
+
+	source.PushBack(CopyMoveMock(10));
+	source.PushBack(CopyMoveMock(20));
+
+	CopyMoveMock::ResetCounters();
+
+	MyArray<CopyMoveMock> moved(std::move(source));
+
+	ASSERT_EQ(moved.GetSize(), 2);
+	EXPECT_EQ(moved[0].value, 10);
+	EXPECT_EQ(moved[1].value, 20);
+	EXPECT_EQ(source.GetSize(), 0);
+	EXPECT_EQ(source.GetCapacity(), 0);
+	EXPECT_EQ(CopyMoveMock::copyAssignments, 0);
+	EXPECT_EQ(CopyMoveMock::moveAssignments, 0);
 }

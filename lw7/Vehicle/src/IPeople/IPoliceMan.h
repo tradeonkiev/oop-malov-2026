@@ -1,7 +1,5 @@
 #pragma once
-
 #include "IPerson.h"
-
 #include <string>
 
 class IPoliceMan : public IPerson

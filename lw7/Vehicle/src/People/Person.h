@@ -1,5 +1,4 @@
 #pragma once
-
 #include "IPerson.h"
 #include "PersonImpl.h"
 

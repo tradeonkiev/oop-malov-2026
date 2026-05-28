@@ -1,8 +1,6 @@
 #pragma once
-
 #include "IPoliceMan.h"
 #include "PersonImpl.h"
-
 #include <string>
 
 class PoliceMan : public PersonImpl<IPoliceMan>

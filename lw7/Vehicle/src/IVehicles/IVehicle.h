@@ -1,7 +1,5 @@
 #pragma once
-
 #include "IBasicVehicle.h"
-
 #include <cstddef>
 #include <memory>
 
