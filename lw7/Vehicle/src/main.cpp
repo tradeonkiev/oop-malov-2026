@@ -38,7 +38,7 @@ int main()
 	PoliceCar policeCar(5, MakeOfTheCar::FORD);
 	policeCar.AddPassenger(johnG);
 	policeCar.AddPassenger(dimB);
-	// policeCar.AddPassenger(rajaGandhi);
+	// policeCar.AddPassenger(raja);
 
 	PrintPoliceCarPassengers(policeCar);
 
@@ -57,10 +57,9 @@ int main()
 	try
 	{
 		taxi.AddPassenger(raja);
-		taxi.AddPassenger(raja);
 	}
 	catch (std::logic_error const& e)
 	{
-		std::cout << "Raja Gandhi cannot return to the taxi: " << e.what() << "\n";
+		std::cout << "Raja cannot return to the taxi: " << e.what() << "\n";
 	}
 }
