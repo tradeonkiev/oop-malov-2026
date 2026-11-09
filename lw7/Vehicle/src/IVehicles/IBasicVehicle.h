@@ -10,7 +10,7 @@ public:
 
 	// сигнализирует о том заполнено ли транспортное средство полностью
 	virtual bool IsFull() const = 0;
-
+	
 	// возвращает общее количество мест
 	virtual size_t GetPlaceCount() const = 0;
 

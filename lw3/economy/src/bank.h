@@ -1,6 +1,8 @@
 #pragma once
 
+#include <atomic>
 #include <map>
+#include <mutex>
 #include <stdexcept>
 #include <string>
 
@@ -17,7 +19,6 @@ class Bank
 {
 public:
 	explicit Bank(Money cash);
-	// TODO: разобраться с этим 
 	Bank(const Bank&) = delete;
 	Bank& operator=(const Bank&) = delete;
 
@@ -38,7 +39,12 @@ public:
 	Money GetTotalMoney() const;
 	Money GetTotalAccountBalance() const;
 
+	unsigned long long GetOperationsCount() const;
+
 private:
+	mutable std::mutex m_mutex;
+	mutable std::atomic<unsigned long long> operationsCount_ = 0;
+
 	Money cash_;
 	Money initialCash_;
 	std::map<AccountId, Money> accounts_;

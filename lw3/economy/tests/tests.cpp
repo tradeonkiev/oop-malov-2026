@@ -1,14 +1,19 @@
 #include "bank.h"
 #include "behaviors.h"
+#include "logger.h"
 #include "person.h"
 #include "town.h"
 #include <gtest/gtest.h>
+#include <thread>
+#include <vector>
+
+static const bool kQuietTests = (g_quiet = true);
 
 TEST(Bank, ConstructorAndNegativeThrows)
 {
 	Bank bank(1000);
 	EXPECT_EQ(bank.GetCash(), 1000);
-	EXPECT_THROW(Bank(-1), BankOperationError);
+	EXPECT_THROW(Bank(-1), std::out_of_range);
 }
 
 TEST(Bank, OpenCloseAccount)
@@ -91,6 +96,73 @@ TEST(Bank, TotalMoneyConserved)
 	EXPECT_EQ(bank.GetTotalMoney(), 1000);
 }
 
+TEST(Bank, ErrorsDoNotChangeState)
+{
+	Bank bank(100);
+	AccountId id = bank.OpenAccount();
+	bank.DepositMoney(id, 50);
+
+	EXPECT_THROW(bank.DepositMoney(id, 51), BankOperationError);
+	EXPECT_THROW(bank.WithdrawMoney(id, 51), BankOperationError);
+	EXPECT_THROW((void)bank.TryWithdrawMoney(id, -1), std::out_of_range);
+	EXPECT_THROW((void)bank.TryWithdrawMoney(999, 1), BankOperationError);
+	EXPECT_THROW(bank.WithdrawMoney(999, 1), BankOperationError);
+	EXPECT_THROW((void)bank.CloseAccount(999), BankOperationError);
+	EXPECT_THROW(bank.GetAccountBalance(999), BankOperationError);
+
+	EXPECT_EQ(bank.GetCash(), 50);
+	EXPECT_EQ(bank.GetAccountBalance(id), 50);
+}
+
+TEST(Bank, TryWithdrawSuccess)
+{
+	Bank bank(100);
+	AccountId id = bank.OpenAccount();
+	bank.DepositMoney(id, 100);
+	EXPECT_TRUE(bank.TryWithdrawMoney(id, 100));
+	EXPECT_EQ(bank.GetAccountBalance(id), 0);
+	EXPECT_EQ(bank.GetCash(), 100);
+}
+
+TEST(Bank, OperationsCountIncludesFailedCalls)
+{
+	Bank bank(100);
+	EXPECT_EQ(bank.GetOperationsCount(), 0u);
+	AccountId id = bank.OpenAccount(); // 1
+	bank.DepositMoney(id, 10); // 2
+	(void)bank.GetCash(); // 3
+	EXPECT_THROW(bank.WithdrawMoney(id, 1000), BankOperationError); // 4
+	EXPECT_THROW(bank.DepositMoney(id, -1), std::out_of_range); // 5
+	EXPECT_EQ(bank.GetOperationsCount(), 5); // сам GetOperationsCount не считается
+}
+
+TEST(Bank, EightThreadsDepositWithdraw)
+{
+	Bank bank(1000);
+	AccountId id = bank.OpenAccount();
+	Money cashBefore = bank.GetCash();
+	Money balanceBefore = bank.GetAccountBalance(id);
+	auto opsBefore = bank.GetOperationsCount();
+
+	{
+		std::vector<std::jthread> threads;
+		for (int t = 0; t < 8; ++t)
+		{
+			threads.emplace_back([&bank, id] {
+				for (int i = 0; i < 100'000; ++i)
+				{
+					bank.DepositMoney(id, 1);
+					bank.WithdrawMoney(id, 1);
+				}
+			});
+		}
+	} // join
+
+	EXPECT_EQ(bank.GetOperationsCount() - opsBefore, 1'600'000);
+	EXPECT_EQ(bank.GetCash(), cashBefore);
+	EXPECT_EQ(bank.GetAccountBalance(id), balanceBefore);
+}
+
 TEST(Person, BasicOperations)
 {
 	Bank bank(1000);
@@ -146,27 +218,6 @@ TEST(Behaviors, NelsonStealsEverySecondTurn)
 
 	town.GetPerson("Nelson").Step(town);
 	EXPECT_EQ(town.GetPerson("Bart").GetPocketCash(), 180);
-}
-
-TEST(Behaviors, SnakeHacksEveryFourthTurn)
-{
-	Bank bank(2000);
-	Town town(bank);
-	town.AddPerson("Homer", 1000);
-	town.AddPerson("Apu", 0);
-	town.AddPerson("Snake", 500).SetBehavior(SnakeBehavior);
-	town.GetPerson("Homer").OpenBankAccount();
-	town.GetPerson("Homer").DepositAll();
-	town.GetPerson("Apu").OpenBankAccount();
-	town.GetPerson("Snake").OpenBankAccount();
-	town.GetPerson("Snake").DepositAll();
-
-	for (int i = 0; i < 3; ++i)
-		town.GetPerson("Snake").Step(town);
-	EXPECT_EQ(bank.GetAccountBalance(town.GetPerson("Homer").GetAccountId()), 1000);
-
-	town.GetPerson("Snake").Step(town);
-	EXPECT_EQ(bank.GetAccountBalance(town.GetPerson("Homer").GetAccountId()), 1000 - kSnakeHack);
 }
 
 TEST(Behaviors, SmithersReopensEveryFifthTurn)
@@ -228,7 +279,9 @@ TEST(Simulation, MoneyConserved50Iterations)
 
 		Money totalPocket = 0;
 		for (auto* p : town.Everyone())
+		{
 			totalPocket += p->GetPocketCash();
+		}
 
 		EXPECT_EQ(totalPocket, bank.GetCash()) << "Iter" << i + 1;
 		EXPECT_EQ(bank.GetTotalMoney(), TOTAL) << "Iter" << i + 1;

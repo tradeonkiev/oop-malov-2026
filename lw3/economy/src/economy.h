@@ -1,3 +1,5 @@
 #pragma once
 
-void RunEconomy(int numIterations);
+#include <atomic>
+
+void RunEconomy(bool parallel, int seconds, const std::atomic<bool>& stop);

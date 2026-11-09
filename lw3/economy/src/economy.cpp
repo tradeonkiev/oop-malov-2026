@@ -1,8 +1,12 @@
 #include "economy.h"
 #include "bank.h"
 #include "behaviors.h"
+#include "logger.h"
 #include "town.h"
+#include <chrono>
 #include <iostream>
+#include <thread>
+#include <vector>
 
 static void PrintState(const std::string& title, Bank& bank, Town& town, Money totalCash)
 {
@@ -43,7 +47,7 @@ static void CheckConsistency(Bank& bank, Town& town, Money totalCash)
 		std::cerr << "INCONSISTENCY\n";
 }
 
-void RunEconomy(int numIterations)
+void RunEconomy(bool parallel, int seconds, const std::atomic<bool>& stop)
 {
 	const Money kTotalCash = 10000;
 	const Money kNumPersons = 9;
@@ -75,15 +79,55 @@ void RunEconomy(int numIterations)
 	town.GetPerson("Smithers").OpenBankAccount();
 	town.GetPerson("Smithers").DepositAll();
 
-	PrintState("Init state", bank, town, kTotalCash);
-
-	for (int i = 1; i <= numIterations; ++i)
+	if (!g_quiet)
 	{
-		std::cout << std::endl
-				  << "iter " << i << std::endl;
-		town.StepAll();
+		PrintState("Init state", bank, town, kTotalCash);
 	}
 
-	PrintState("Final state", bank, town, kTotalCash);
+	using Clock = std::chrono::steady_clock;
+	const auto start = Clock::now();
+	const auto deadline = start + std::chrono::seconds(seconds);
+	const auto opsBefore = bank.GetOperationsCount();
+
+	if (!parallel)
+	{
+		while (!stop && Clock::now() < deadline)
+		{
+			for (Person* p : town.Everyone())
+			{
+				if (stop || Clock::now() >= deadline)
+				{
+					break;
+				}
+				p->Step(town);
+			}
+		}
+	}
+	else
+	{
+		std::vector<std::jthread> threads;
+		for (Person* p : town.Everyone())
+		{
+			threads.emplace_back([p, &town, &stop, deadline] {
+				while (!stop && Clock::now() < deadline)
+				{
+					p->Step(town);
+				}
+			});
+		}
+	}
+	const double elapsed = std::chrono::duration<double>(Clock::now() - start).count();
+	const auto ops = bank.GetOperationsCount() - opsBefore;
+
+	if (!g_quiet)
+	{
+		PrintState("Final state", bank, town, kTotalCash);
+	}
+
+	std::cout << std::endl
+			  << "Time: " << elapsed << " s" << std::endl;
+	std::cout << "Bank operations: " << ops << std::endl;
+	std::cout << "Operations per second: " << static_cast<long long>(ops / elapsed) << std::endl;
+
 	CheckConsistency(bank, town, kTotalCash);
 }

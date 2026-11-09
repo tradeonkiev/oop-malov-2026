@@ -1,7 +1,9 @@
 #pragma once
 
 #include "bank.h"
+#include <atomic>
 #include <functional>
+#include <mutex>
 #include <string>
 
 class Person;
@@ -30,10 +32,13 @@ public:
 	void SetBehavior(Behavior b);
 
 private:
+	bool TakeCash(Money amount);
+
 	std::string name_;
 	Bank& bank_;
 	Money pocketCash_;
-	AccountId accountId_ = 0;
-	bool hasAccount_ = false;
+	mutable std::mutex walletMutex_;
+	std::atomic<AccountId> accountId_ = 0;
+	std::atomic<bool> hasAccount_ = false;
 	Behavior behavior_;
 };

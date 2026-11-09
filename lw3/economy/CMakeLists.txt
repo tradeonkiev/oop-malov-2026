@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.15)
-set(CURRENT_TASK_NAME "economy")
+set(CURRENT_TASK_NAME "bank")
 project(${CURRENT_TASK_NAME})
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+find_package(Threads REQUIRED)
 
 include(FetchContent)
 FetchContent_Declare(
@@ -19,7 +23,8 @@ add_executable("${CURRENT_TASK_NAME}" ${PROJECT_SOURCES} src/main.cpp)
 add_executable("${CURRENT_TASK_NAME}_tests" ${PROJECT_SOURCES} tests/tests.cpp)
 target_include_directories(${CURRENT_TASK_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 target_include_directories(${CURRENT_TASK_NAME}_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
-target_link_libraries("${CURRENT_TASK_NAME}_tests" PRIVATE GTest::gtest GTest::gtest_main)
+target_link_libraries(${CURRENT_TASK_NAME} PRIVATE Threads::Threads)
+target_link_libraries("${CURRENT_TASK_NAME}_tests" PRIVATE Threads::Threads GTest::gtest GTest::gtest_main)
 
 enable_testing()
 include(GoogleTest)

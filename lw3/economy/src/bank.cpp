@@ -6,7 +6,7 @@ Bank::Bank(Money cash)
 {
     if (cash < 0)
     {
-        throw BankOperationError("Cannt init bank with negative cash");
+        throw std::out_of_range("Cannt init bank with negative cash");
     }
 }
 
@@ -28,17 +28,23 @@ void Bank::ValidatePositiveAmount(Money amount) const
 
 Money Bank::GetCash() const
 {
+    operationsCount_++;
+    std::lock_guard lock(m_mutex);
     return cash_;
 }
 
 Money Bank::GetAccountBalance(AccountId accountId) const
 {
+    operationsCount_++;
+    std::lock_guard lock(m_mutex);
     ValidateAccount(accountId);
     return accounts_.at(accountId);
 }
 
 AccountId Bank::OpenAccount()
 {
+    operationsCount_++;
+    std::lock_guard lock(m_mutex);
     AccountId id = nextAccountId_++;
     accounts_[id] = 0;
     return id;
@@ -46,6 +52,8 @@ AccountId Bank::OpenAccount()
 
 Money Bank::CloseAccount(AccountId accountId)
 {
+    operationsCount_++;
+    std::lock_guard lock(m_mutex);
     ValidateAccount(accountId);
     Money balance = accounts_.at(accountId);
     accounts_.erase(accountId);
@@ -55,6 +63,8 @@ Money Bank::CloseAccount(AccountId accountId)
 
 void Bank::DepositMoney(AccountId account, Money amount)
 {
+    operationsCount_++;
+    std::lock_guard lock(m_mutex);
     ValidatePositiveAmount(amount);
     ValidateAccount(account);
 
@@ -69,6 +79,8 @@ void Bank::DepositMoney(AccountId account, Money amount)
 
 void Bank::WithdrawMoney(AccountId account, Money amount)
 {
+    operationsCount_++;
+    std::lock_guard lock(m_mutex);
     ValidatePositiveAmount(amount);
     ValidateAccount(account);
 
@@ -83,6 +95,8 @@ void Bank::WithdrawMoney(AccountId account, Money amount)
 
 bool Bank::TryWithdrawMoney(AccountId account, Money amount)
 {
+    operationsCount_++;
+    std::lock_guard lock(m_mutex);
     ValidatePositiveAmount(amount);
     ValidateAccount(account);
 
@@ -98,6 +112,8 @@ bool Bank::TryWithdrawMoney(AccountId account, Money amount)
 
 void Bank::SendMoney(AccountId srcAccountId, AccountId dstAccountId, Money amount)
 {
+    operationsCount_++;
+    std::lock_guard lock(m_mutex);
     ValidatePositiveAmount(amount);
     ValidateAccount(srcAccountId);
     ValidateAccount(dstAccountId);
@@ -107,24 +123,14 @@ void Bank::SendMoney(AccountId srcAccountId, AccountId dstAccountId, Money amoun
         throw BankOperationError("Not enough money on source account " + std::to_string(srcAccountId));
     }
 
-    Money srcOld = accounts_[srcAccountId];
-    Money dstOld = accounts_[dstAccountId];
-
-    try
-    {
-        accounts_[srcAccountId] -= amount;
-        accounts_[dstAccountId] += amount;
-    }
-    catch (...)
-    {
-        accounts_[srcAccountId] = srcOld;
-        accounts_[dstAccountId] = dstOld;
-        throw;
-    }
+    accounts_[srcAccountId] -= amount;
+    accounts_[dstAccountId] += amount;
 }
 
 bool Bank::TrySendMoney(AccountId srcAccountId, AccountId dstAccountId, Money amount)
 {
+    operationsCount_++;
+    std::lock_guard lock(m_mutex);
     ValidatePositiveAmount(amount);
     ValidateAccount(srcAccountId);
     ValidateAccount(dstAccountId);
@@ -134,26 +140,16 @@ bool Bank::TrySendMoney(AccountId srcAccountId, AccountId dstAccountId, Money am
         return false;
     }
 
-    Money srcOld = accounts_[srcAccountId];
-    Money dstOld = accounts_[dstAccountId];
-
-    try
-    {
-        accounts_[srcAccountId] -= amount;
-        accounts_[dstAccountId] += amount;
-    }
-    catch (...)
-    {
-        accounts_[srcAccountId] = srcOld;
-        accounts_[dstAccountId] = dstOld;
-        throw;
-    }
+    accounts_[srcAccountId] -= amount;
+    accounts_[dstAccountId] += amount;
 
     return true;
 }
 
 Money Bank::GetTotalMoney() const
 {
+    operationsCount_++;
+    std::lock_guard lock(m_mutex);
     Money total = cash_;
     for (const auto& [id, balance] : accounts_)
     {
@@ -164,10 +160,17 @@ Money Bank::GetTotalMoney() const
 
 Money Bank::GetTotalAccountBalance() const
 {
+    operationsCount_++;
+    std::lock_guard lock(m_mutex);
     Money total = 0;
     for (const auto& [id, balance] : accounts_)
     {
         total += balance;
     }
     return total;
+}
+
+unsigned long long Bank::GetOperationsCount() const
+{
+    return operationsCount_;
 }

@@ -1,28 +1,41 @@
 #include "economy.h"
-#include <cstdlib>
+#include "logger.h"
+#include <atomic>
+#include <csignal>
+#include <cstring>
 #include <iostream>
+#include <string>
+
+std::atomic<bool> g_stop = false;
+
+void OnCtrlC(int)
+{
+	g_stop = true;
+}
 
 int main(int argc, char* argv[])
 {
-    int numIterations = 0;
+	std::string mode;
+	int seconds = 0;
 
-    if (argc >= 2)
-    {
-        numIterations = std::atoi(argv[1]);
-    }
-    else
-    {
-        std::cout << "Enter number of iterations: ";
-        std::cin >> numIterations;
-    }
+	for (int i = 1; i < argc; ++i)
+	{
+		if (std::strcmp(argv[i], "--mode") == 0 && i + 1 < argc)
+			mode = argv[++i];
+		else if (std::strcmp(argv[i], "--seconds") == 0 && i + 1 < argc)
+			seconds = std::atoi(argv[++i]);
+		else if (std::strcmp(argv[i], "--quiet") == 0)
+			g_quiet = true;
+	}
 
-    if (numIterations <= 0)
-    {
-        std::cerr << "Invalid number of iterations\n";
-        return 1;
-    }
+	if ((mode != "single" && mode != "parallel") || seconds <= 0)
+	{
+		std::cerr << "Usage: bank --mode <single|parallel> --seconds <N> [--quiet]\n";
+		return 1;
+	}
 
-    RunEconomy(numIterations);
+	std::signal(SIGINT, OnCtrlC);
+	RunEconomy(mode == "parallel", seconds, g_stop);
 
-    return 0;
+	return 0;
 }

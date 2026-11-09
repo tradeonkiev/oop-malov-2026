@@ -1,6 +1,6 @@
 #include "person.h"
 #include "town.h"
-#include <iostream>
+#include "logger.h"
 
 Person::Person(const std::string& name, Bank& bank, Money pocketCash, Behavior behavior)
 	: name_(name)
@@ -22,7 +22,7 @@ AccountId Person::OpenBankAccount()
 	{
 		accountId_ = bank_.OpenAccount();
 		hasAccount_ = true;
-		std::cout << "[" << name_ << "] open account, id: " << accountId_ << std::endl;
+		Log() << "[" << name_ << "] open account, id: " << accountId_;
 	}
 	return accountId_;
 }
@@ -31,32 +31,32 @@ void Person::CloseBankAccount()
 {
 	if (hasAccount_)
 	{
-		pocketCash_ += bank_.CloseAccount(accountId_);
 		hasAccount_ = false;
-		std::cout << "[" << name_ << "] close account, id: " << accountId_ << std::endl;
+		ReceiveCash(bank_.CloseAccount(accountId_));
+		Log() << "[" << name_ << "] close account, id: " << accountId_;
 	}
 }
 
 void Person::Deposit(Money amount)
 {
-	if (hasAccount_ && amount <= pocketCash_ && amount > 0)
+	if (hasAccount_ && amount > 0 && TakeCash(amount))
 	{
 		try
 		{
 			bank_.DepositMoney(accountId_, amount);
-			std::cout << "[" << name_ << "] deposited " << amount << "\n";
-			pocketCash_ -= amount;
+			Log() << "[" << name_ << "] deposited " << amount;
 		}
 		catch (const BankOperationError& e)
 		{
-			std::cout << "[" << name_ << "] failed to deposit: " << e.what() << "\n";
+			ReceiveCash(amount);
+			Log() << "[" << name_ << "] failed to deposit: " << e.what();
 		}
 	}
 }
 
 void Person::DepositAll()
 {
-	Deposit(pocketCash_);
+	Deposit(GetPocketCash());
 }
 
 bool Person::TryWithdraw(Money amount)
@@ -68,7 +68,7 @@ bool Person::TryWithdraw(Money amount)
 
 	if (bank_.TryWithdrawMoney(accountId_, amount))
 	{
-		pocketCash_ += amount;
+		ReceiveCash(amount);
 		return true;
 	}
 
@@ -77,23 +77,38 @@ bool Person::TryWithdraw(Money amount)
 
 bool Person::GiveCashTo(Person& other, Money amount)
 {
-	if (pocketCash_ < amount)
+	if (!TakeCash(amount))
 	{
 		return false;
 	}
 
-	pocketCash_ -= amount;
-	other.pocketCash_ += amount;
+	other.ReceiveCash(amount);
 	return true;
 }
 
 void Person::ReceiveCash(Money amount)
 {
+	std::lock_guard lock(walletMutex_);
 	pocketCash_ += amount;
 }
 
+bool Person::TakeCash(Money amount)
+{
+	std::lock_guard lock(walletMutex_);
+	if (pocketCash_ < amount)
+	{
+		return false;
+	}
+	pocketCash_ -= amount;
+	return true;
+}
+
 const std::string& Person::GetName() const { return name_; }
-Money Person::GetPocketCash() const { return pocketCash_; }
+Money Person::GetPocketCash() const
+{
+	std::lock_guard lock(walletMutex_); // зачем он мне нужен можно ли без него
+	return pocketCash_;
+}
 AccountId Person::GetAccountId() const { return accountId_; }
 bool Person::HasAccount() const { return hasAccount_; }
 Bank& Person::GetBank() const { return bank_; }

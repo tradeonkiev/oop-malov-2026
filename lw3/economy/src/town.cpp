@@ -10,7 +10,7 @@ Person& Town::AddPerson(const std::string& name, Money pockerMoney)
 		throw std::invalid_argument("Person '" + name + "' already exists");
 	}
 
-	auto [it, inserted] = people_.emplace(name, Person(name, bank_, pockerMoney));
+	auto [it, inserted] = people_.try_emplace(name, name, bank_, pockerMoney);
 	order_.push_back(&it->second);
 	return it->second;
 }
